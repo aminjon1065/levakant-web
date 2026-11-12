@@ -42,6 +42,25 @@ describe('translations', () => {
   it('tg: no Russian-only letters in messages', () => {
     expect(flat(tg as Msgs).filter(([, v]) => RU_ONLY.test(v))).toEqual([]);
   });
+  it('tg: strings identical to ru are real Tajik words (loanwords, names)', () => {
+    const OK = new Set([
+      'Галерея',
+      'Ипотека',
+      'Мансарда',
+      'мансарда',
+      'Меню',
+      'Перспектива',
+      'Ракурс',
+      'Телефон',
+      'Фасад',
+      'Фасад —',
+      'Ядро',
+      'акаи Муъмин',
+    ]);
+    const T = new Map(flat(tg as Msgs));
+    const same = [...R].filter(([k, v]) => T.get(k) === v && /[А-Яа-яЁё]{3,}/.test(v) && !OK.has(v));
+    expect(same).toEqual([]);
+  });
   it('en: no Cyrillic left in project data', () => {
     expect(strings(dataEn).filter((v) => CYR.test(v))).toEqual([]);
   });

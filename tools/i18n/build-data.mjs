@@ -33,7 +33,9 @@ for (const locale of ['ru', 'tg', 'en']) {
     const o = overrides[locale]?.[v];
     if (o !== undefined) return o;
     const out = tr(v);
-    if (out === undefined || (locale === 'en' && hasCyrillic(out))) {
+    // a composite template may "translate" a string to itself: only real Tajik words may stay identical
+    const same = locale === 'tg' && out === v && /[А-Яа-яЁё]{3,}/.test(v) && !overrides.tgSameAsRu.includes(v);
+    if (out === undefined || same || (locale === 'en' && hasCyrillic(out))) {
       fails.add(v);
       return v;
     }

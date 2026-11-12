@@ -30,7 +30,7 @@ export default function Page() {
   const pxFrom = nf(locale, allMin(d, pricing));
   return (
     <SiteProvider d={d} pricing={pricing} site={site} locale={locale}>
-      <div className="lr" id="lr-root" style={{ '--gold': '#C9A46A' } as CSSProperties}>
+      <div className="lr" id="lr-root" lang={locale} style={{ '--gold': '#C9A46A' } as CSSProperties}>
         <Nav />
         <Hero pxFrom={pxFrom} />
         <div className="rest">
