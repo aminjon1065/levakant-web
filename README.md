@@ -19,11 +19,13 @@ pnpm build && pnpm start
 
 ```bash
 pnpm check          # lint + typecheck + unit tests (prices, filters, sun, translations, leads API)
-pnpm test:e2e       # Playwright at 1440 / 834 / 390: scenarios, 3D, languages, axe WCAG A/AA, content rules
+pnpm test:e2e       # Playwright at 1440 / 834 / 390: scenarios, 3D, languages, axe WCAG A/AA, content rules;
+                    # no sideways overflow or errors at 360 / 768 / 1024 / 1280
 ```
 
-Visual parity with the approved mockup (every section, 3D canvases masked; sections changed on purpose are listed
-in `tests/visual/parity.spec.ts`):
+Visual parity with the approved mockup (every section, 3D canvases masked; photos compared with a softer threshold
+because the site serves resized AVIF/WebP; sections changed on purpose are listed in `tests/visual/parity.spec.ts`
+with the height change each may have):
 
 ```bash
 (cd ../levakant-export/levakant-site && python3 -m http.server 4173) &

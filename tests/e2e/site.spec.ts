@@ -159,10 +159,40 @@ test.describe('catalogue', () => {
     const sec = page.locator('#apartments');
     await sec.getByRole('tab', { name: /3D-квартира/ }).click();
     await expect(sec.locator('#q3')).toBeVisible();
-    await sec.locator('.q3-fl button').first().dispatchEvent('click'); // rooms are clip-path polygons
+    // rooms are clip-path polygons inside 3D-transformed layers: click a real screen point inside each room
+    // (hit-tested, so an overlapping layer would fail the test) in the perspective and the top view
+    const rooms = sec.locator('.q3-fl button');
+    await page.locator('#q3').scrollIntoViewIfNeeded();
+    for (const view of ['perspective', 'top']) {
+      if (view === 'top') {
+        await sec.getByRole('button', { name: 'Сверху' }).click();
+        await expect(sec.getByRole('button', { name: 'Сверху' })).toHaveAttribute('aria-pressed', 'true');
+      }
+      await page.waitForTimeout(800); // camera transition
+      const n = await rooms.count();
+      expect(n).toBeGreaterThan(3);
+      for (let i = 0; i < n; i++) {
+        // a second click on the selected room deselects it: start from "nothing selected"
+        if ((await rooms.nth(i).getAttribute('aria-pressed')) === 'true') await rooms.nth(i).press('Enter');
+        const pt = await rooms.nth(i).evaluate((bt) => {
+          const rc = bt.getBoundingClientRect();
+          const hits: [number, number][] = [];
+          for (let a = 1; a < 30; a++)
+            for (let c = 1; c < 30; c++) {
+              const x = rc.left + (rc.width * a) / 30;
+              const y = rc.top + (rc.height * c) / 30;
+              if (bt.contains(document.elementFromPoint(x, y))) hits.push([x, y]);
+            }
+          const mx = hits.reduce((s, h) => s + h[0], 0) / hits.length;
+          const my = hits.reduce((s, h) => s + h[1], 0) / hits.length;
+          return hits.sort((p, q) => Math.hypot(p[0] - mx, p[1] - my) - Math.hypot(q[0] - mx, q[1] - my))[0];
+        });
+        expect(pt, `room ${i} (${view}) has a clickable point`).toBeTruthy();
+        await page.mouse.click(pt[0], pt[1]);
+        await expect(rooms.nth(i)).toHaveAttribute('aria-pressed', 'true');
+      }
+    }
     await expect(sec.locator('.rm-i .lb')).toHaveText('Выбрано');
-    await sec.getByRole('button', { name: 'Сверху' }).click();
-    await expect(sec.getByRole('button', { name: 'Сверху' })).toHaveAttribute('aria-pressed', 'true');
     await sec.locator('.inb-r a').first().click();
     await expect(page.locator('#building .b3-x')).toContainText('80,29');
   });

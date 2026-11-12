@@ -6,6 +6,12 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? '';
 if (process.env.SITE_INDEXABLE === '1' && (!/^https:\/\//.test(siteUrl) || /example\.com|localhost/.test(siteUrl))) {
   throw new Error('SITE_INDEXABLE=1 requires NEXT_PUBLIC_SITE_URL with the real https:// domain');
 }
+// A closed demo may run without a domain, but link previews (og:image) and canonical links would point nowhere.
+if (process.env.NODE_ENV === 'production' && (!siteUrl || /example\.com|localhost/.test(siteUrl))) {
+  console.warn(
+    `⚠ NEXT_PUBLIC_SITE_URL is "${siteUrl || 'not set'}": link previews and canonical URLs will not point to the site.`,
+  );
+}
 
 const ga = process.env.NEXT_PUBLIC_GA4_ID;
 const ym = process.env.NEXT_PUBLIC_YM_ID;
@@ -37,7 +43,9 @@ const securityHeaders = [
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=()' },
-  ...(siteUrl.startsWith('https://') ? [{ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' }] : []),
+  ...(siteUrl.startsWith('https://')
+    ? [{ key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' }]
+    : []),
   // dev needs eval for fast refresh — the policy applies to production builds only
   ...(process.env.NODE_ENV === 'production' ? [{ key: 'Content-Security-Policy', value: csp }] : []),
 ];
