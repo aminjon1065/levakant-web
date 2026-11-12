@@ -1,17 +1,14 @@
 'use client';
 
-import { favList, get, set } from './store';
+import { favList, get, set, type Want } from './store';
 
-/** Pre-tick contact-form options (mockup `_pre`): WhatsApp as the method, "what to send" boxes. */
-export function preFill(o: { wa?: boolean; w?: string[] }) {
-  setTimeout(() => {
-    const ck = (id: string) => {
-      const el = document.getElementById(id) as HTMLInputElement | null;
-      if (el) el.checked = true;
-    };
-    if (o.wa) ck('m2');
-    (o.w || []).forEach(ck);
-  }, 30);
+/** Pre-select contact-form options (mockup `_pre`): WhatsApp as the method, "what to send" boxes. */
+export function preFill(o: { whatsapp?: boolean; wants?: Want[] }) {
+  const s = get();
+  set({
+    fMethod: o.whatsapp ? 'whatsapp' : s.fMethod,
+    fWants: [...new Set([...s.fWants, ...(o.wants || [])])],
+  });
 }
 
 export function focusLater(id: string) {
@@ -43,13 +40,13 @@ export function withFav(id: string) {
 /** "Получить расчёт в WhatsApp" / "Написать в WhatsApp" */
 export const goWA = () => {
   set({ sent: false, menu: false });
-  preFill({ wa: true, w: ['w1'] });
+  preFill({ whatsapp: true, wants: ['prices'] });
 };
 
 /** "Записаться на видеозвонок" */
 export const askVideo = () => {
   set({ sent: false });
-  preFill({ wa: true, w: ['w4'] });
+  preFill({ whatsapp: true, wants: ['video'] });
 };
 
 /** "Узнать условия аренды и продажи" */

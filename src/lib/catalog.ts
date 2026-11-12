@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useShallow } from 'zustand/react/shallow';
 import { useSiteData } from '@/components/SiteProvider';
 import { focusLater, place, preFill, withFav } from './actions';
+import { track } from './analytics';
 import { a3Lt, a3Tf } from './drag';
 import { nf } from './format';
 import { m2Min, moOf, pxMin } from './pricing';
@@ -90,7 +91,10 @@ export function useCatalogVals() {
     floors: l.flShort,
     px: n(pxMin(d, p, l.id)),
     fav: favs.includes(l.id) ? 'on' : '',
-    pick: up({ apt: l.id, vFlip: !s.vFlip, vz: 0, rm: -1 }),
+    pick: () => {
+      set({ apt: l.id, vFlip: !s.vFlip, vz: 0, rm: -1 });
+      track('layout_select', { layout: l.id });
+    },
   }));
   const fActive = s.fT !== 'all' || s.fA !== 'all' || s.fF !== 'all';
   const kpKey = sel.fk[0];
@@ -242,11 +246,11 @@ export function useCatalogVals() {
     favNote: favs.length ? t('favNote', { n: favs.length }) : t('favNone'),
     askApt: () => {
       set({ fav: addSel, sent: false });
-      preFill({ w: ['w1'] });
+      preFill({ wants: ['prices'] });
     },
     askAptX: () => {
       set({ fav: addSel, sent: false, pz: false });
-      preFill({ w: ['w1'] });
+      preFill({ wants: ['prices'] });
     },
     sFl,
     isPlan: !is3,
@@ -259,7 +263,17 @@ export function useCatalogVals() {
     md3On: tf(is3),
     md3Note: has3 ? t('md3Ready') : t('md3Soon'),
     setPlan: up({ am: 'plan', vz: 0 }),
-    set3d: up({ am: 'd3', vz: 0 }),
+    set3d: () => {
+      set({ am: 'd3', vz: 0 });
+      track('apartment_3d', { layout: sel.id });
+    },
+    // "Рассчитать рассрочку": the selected layout goes into the calculator
+    calcFromCard: () => {
+      set({ pcApt: sel.id, pcFl: sel.fk[0] });
+      track('calc_open_from_card', { layout: sel.id });
+    },
+    selId: sel.id,
+    shareText: t('shareText', { title: sel.title, area: sel.as }),
     sRm,
     sRp,
     a3Ready,

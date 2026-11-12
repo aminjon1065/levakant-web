@@ -70,7 +70,14 @@ function useSunVals() {
       on: tf(h === sh),
       pick: up({ sunM: h * 60, sunPlay: false }),
     })),
-    sunRows: SD.fac.map((f) => ({ n: f.n, dir: f.dir, v: f.v, h: f.h, cls: 'sun-r' + (facOn(f.dir) ? ' on' : '') })),
+    sunRows: SD.fac.map((f) => ({
+      n: f.n,
+      dir: f.dir,
+      v: f.v,
+      h: f.h,
+      on: facOn(f.dir),
+      cls: 'sun-r' + (facOn(f.dir) ? ' on' : ''),
+    })),
     sunRise: SD.rise,
     sunPrev: up({ sunM: Math.max(SD.riseM, smin - 60), sunPlay: false }),
     sunNext: up({ sunM: Math.min(SD.setM, smin + 60), sunPlay: false }),
@@ -220,7 +227,12 @@ export function Lifestyle() {
                   loading="lazy"
                   decoding="async"
                 />{' '}
-                <canvas className="sun-gl" ref={sunView} role="img" aria-label={v.sunAlt}></canvas>{' '}
+                <canvas
+                  className="sun-gl"
+                  ref={sunView}
+                  role="img"
+                  aria-label={v.sunAlt + '. ' + t('kbdHint')}
+                ></canvas>{' '}
                 <Stage3DStatus which="sunSt" />
                 <div className="sun-n" aria-hidden="true" style={{ transform: 'rotate(-24deg)' }}>
                   <i></i>
@@ -296,7 +308,10 @@ export function Lifestyle() {
                       <div className={r.cls}>
                         <span>
                           <b>{r.n}</b>
-                          <small>{r.dir}</small>
+                          <small>
+                            {r.dir}
+                            {r.on && <span className="sun-now">{' · ' + t('sunNow')}</span>}
+                          </small>
                         </span>
                         <span>{r.v}</span>
                         <span>{r.h}</span>

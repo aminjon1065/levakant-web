@@ -60,7 +60,7 @@ async function visitStates(page: Page, collect: () => Promise<void>) {
   await page.locator('#apartments .rt button:not([disabled])').first().click();
   await collect();
   await page.locator('#apartments .cl .lc').last().click(); // 4-room attic
-  await page.locator('#apartments .cv-f .chip').click(); // favourite
+  await page.locator('#apartments .cv-f .chip').first().click(); // favourite
   await collect();
   await page.locator('#apartments .cv-md button').first().click();
   await page.locator('#apartments .cv-tl .tb').last().click(); // full screen plan

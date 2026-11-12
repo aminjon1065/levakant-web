@@ -73,6 +73,15 @@ export interface SiteState {
   sendErr: string;
   /** is the enquiry channel connected? null until /api/leads answers */
   leadsOn: boolean | null;
+  /** enquiry form fields (controlled) */
+  fName: string;
+  fTel: string;
+  fMsg: string;
+  fApt: string;
+  fMethod: '' | 'call' | 'whatsapp' | 'telegram';
+  fWants: Want[];
+  /** honeypot (bots fill every field) */
+  fHp: string;
   /** calculator parameters attached to the enquiry ("Получить расчёт") */
   calc: { layout: string; floors: 'typ' | 'f9' | 'ph'; down: number; term: number } | null;
   // price calculator
@@ -81,6 +90,8 @@ export interface SiteState {
   pcDown: number;
   pcTerm: number;
 }
+
+export type Want = 'prices' | 'catalog' | 'viewing' | 'video';
 
 export const initialState: SiteState = {
   glB3: false,
@@ -137,6 +148,13 @@ export const initialState: SiteState = {
   sMethod: '',
   sendErr: '',
   leadsOn: null,
+  fName: '',
+  fTel: '',
+  fMsg: '',
+  fApt: '',
+  fMethod: '',
+  fWants: [],
+  fHp: '',
   calc: null,
   pcApt: 'b6329',
   pcFl: 'typ',

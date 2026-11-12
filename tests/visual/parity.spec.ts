@@ -38,8 +38,9 @@ const WIDTHS: [number, number][] = [
 const CHANGED: Record<string, string> = {
   top: 'ДЕМО marks in the hero ledger',
   about: 'ДЕМО marks on price / instalments / completion',
-  price: 'ДЕМО marks, demo footnote, quote button label',
+  price: 'ДЕМО marks, demo footnote, quote button label, "100 % — discount" hint under the slider',
   floorplan: 'plan scroll hint on narrow screens',
+  apartments: 'card: "Рассчитать рассрочку" link, "Поделиться" chip, ДЕМО mark on the price',
   trust: 'documents "pending", draft developer address hidden, ДЕМО marks',
   commerce: 'ДЕМО mark on rates, plan scroll hint on narrow screens',
   contact: 'placeholder contacts removed, consent text, form status',

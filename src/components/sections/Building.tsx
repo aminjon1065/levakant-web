@@ -8,6 +8,7 @@ import { useExplorerVals } from '@/lib/explorer';
 import { imgDims } from '@/lib/imgDims';
 import { useDragRotate } from '@/lib/drag';
 import { useStage } from '@/engine/useStage';
+import { get, set } from '@/lib/store';
 
 export function Building() {
   const t = useTranslations('building');
@@ -77,7 +78,21 @@ export function Building() {
             </div>{' '}
             <div className="b3c">
               {' '}
-              <div className={v.b3Cls} id="b3">
+              <div
+                className={v.b3Cls}
+                id="b3"
+                tabIndex={0}
+                role="group"
+                aria-label={t('b3Kbd')}
+                onKeyDown={(e) => {
+                  if (e.target !== e.currentTarget || get().glB3) return;
+                  const x = get();
+                  const k = { ArrowLeft: [-15, 0], ArrowRight: [15, 0], ArrowUp: [0, -8], ArrowDown: [0, 8] }[e.key];
+                  if (!k) return;
+                  e.preventDefault();
+                  set({ view: '', ry: x.ry + k[0], rx: Math.max(-86, Math.min(-2, x.rx + k[1])) });
+                }}
+              >
                 {' '}
                 <canvas className="b3-gl" ref={b3View} role="img" aria-label={t('n3dBuildingModelFrom')}></canvas>{' '}
                 <div className="b3-sc">

@@ -7,6 +7,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { DemoTag } from '@/components/DemoTag';
 import { useSiteData } from '@/components/SiteProvider';
 import { waHref } from '@/lib/links';
+import { track } from '@/lib/analytics';
 import { imgDims } from '@/lib/imgDims';
 import { preFill, withFav } from '@/lib/actions';
 import { area, nf } from '@/lib/format';
@@ -99,8 +100,10 @@ function usePriceVals() {
         sent: false,
         calc: { layout: pcId, floors: pcFl, down: s.pcDown, term: c.full ? 0 : s.pcTerm },
       });
-      preFill({ wa: true, w: ['w1'] });
+      preFill({ whatsapp: true, wants: ['prices'] });
+      track('calc_quote', { layout: pcId, via: 'form' });
     },
+    fullHint: t('fullHint', { d: p.discountFull }),
     // …or straight into WhatsApp when a verified number is configured
     waCalc: waHref(
       cfg,
@@ -212,7 +215,11 @@ export function Price() {
                   {v.pcDown}
                   {'%'}
                 </b>
-              </label>{' '}
+              </label>
+              <p className="pc-hint">
+                {v.fullHint}
+                <DemoTag on={demo} />
+              </p>{' '}
               <span className="lb">{t('instalmentTerm')}</span>{' '}
               <div className="chips">
                 {v.pcTerms.map((o, i) => (
@@ -252,7 +259,12 @@ export function Price() {
               <a
                 className="btn b-gold"
                 {...(v.waCalc
-                  ? { href: v.waCalc, target: '_blank', rel: 'noopener noreferrer' }
+                  ? {
+                      href: v.waCalc,
+                      target: '_blank',
+                      rel: 'noopener noreferrer',
+                      onClick: () => track('calc_quote', { via: 'whatsapp' }),
+                    }
                   : { href: '#contact', onClick: v.askCalc })}
               >
                 {v.waCalc ? t('getQuoteWa') : t('getQuote')}{' '}

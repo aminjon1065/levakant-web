@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
+import { Analytics } from '@/components/Analytics';
 import { indexable, OG_LOCALE, siteUrl } from '@/lib/site';
 import '@/styles/00-fonts.css';
 import '@/styles/10-main.css';
@@ -86,6 +87,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
       </head>
       <body>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );

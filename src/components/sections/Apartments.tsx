@@ -1,7 +1,7 @@
 // Generated from levakant-source/src/main.html <!--s:apartments--> — hand-maintained from here on.
 'use client';
 
-import { Fragment, useEffect } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { DemoTag } from '@/components/DemoTag';
 import { Pic } from '@/components/Pic';
@@ -9,12 +9,49 @@ import { useSiteData } from '@/components/SiteProvider';
 import { useCatalogVals } from '@/lib/catalog';
 import { imgDims } from '@/lib/imgDims';
 import { useDragRotate } from '@/lib/drag';
+import { track } from '@/lib/analytics';
+import { get, set, useSite } from '@/lib/store';
 
 export function Apartments() {
   const t = useTranslations('apartments');
   const v = useCatalogVals();
-  const { demo } = useSiteData();
+  const { demo, d } = useSiteData();
   useDragRotate('q3');
+  const [shared, setShared] = useState(false);
+  // shareable link to a layout: ?apt=<id> opens the catalogue on it; explicit choices update the address
+  const apt = useSite((x) => x.apt);
+  const first = useRef(true);
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('apt');
+    // (a shared link carries #apartments, so the browser scrolls to the catalogue by itself)
+    if (id && d.L[id]) set({ apt: id, fT: 'all', fA: 'all', fF: 'all', vz: 0, rm: -1, vFlip: !get().vFlip });
+  }, [d]);
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    const u = new URL(window.location.href);
+    u.searchParams.set('apt', apt);
+    window.history.replaceState(window.history.state, '', u.pathname + u.search + u.hash);
+  }, [apt]);
+  const share = async () => {
+    const u = new URL(window.location.href);
+    u.searchParams.set('apt', v.selId);
+    u.hash = 'apartments';
+    track('layout_share', { layout: v.selId });
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'LEVAKANT RESIDENCE', text: v.shareText, url: u.toString() });
+        return;
+      }
+      await navigator.clipboard.writeText(u.toString());
+      setShared(true);
+      setTimeout(() => setShared(false), 2500);
+    } catch {
+      /* share sheet closed */
+    }
+  };
   // pre-decode the wall / furniture masks of the selected layout so opening "3D-квартира" stays responsive
   const selId = v.a3Cls.split('q3-')[2];
   useEffect(() => {
@@ -314,7 +351,23 @@ export function Apartments() {
                   {v.has3 && (
                     <>
                       {' '}
-                      <div className="q3" id="q3">
+                      <div
+                        className="q3"
+                        id="q3"
+                        tabIndex={0}
+                        role="group"
+                        aria-label={t('q3Kbd')}
+                        onKeyDown={(e) => {
+                          if (e.target !== e.currentTarget) return;
+                          const x = get();
+                          const k = { ArrowLeft: [-15, 0], ArrowRight: [15, 0], ArrowUp: [0, -8], ArrowDown: [0, 8] }[
+                            e.key
+                          ];
+                          if (!k) return;
+                          e.preventDefault();
+                          set({ av: '', az: x.az + k[0], ax: Math.max(0, Math.min(68, x.ax + k[1])) });
+                        }}
+                      >
                         {' '}
                         <div className={v.a3zCls}>
                           {' '}
@@ -497,13 +550,22 @@ export function Apartments() {
                   <DemoTag on={demo} />
                 </b>
                 <span>{t('smoSm2', { sMo: v.sMo, sM2: v.sM2 })}</span>
+                <a className="lk cv-calc" href="#price" onClick={v.calcFromCard}>
+                  {t('calcFromCard')}{' '}
+                  <svg width="18" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true">
+                    <path d="M0 5h16M12 1l4 4-4 4" stroke="currentColor" strokeWidth="1.3"></path>
+                  </svg>
+                </a>
               </div>{' '}
               <div className="cv-f">
                 {' '}
                 <button className={v.favCls} onClick={v.toggleFav} aria-pressed={v.favOn}>
                   {v.favLabel}
                 </button>{' '}
-                <p aria-live="polite">{v.favNote}</p>{' '}
+                <button className="chip" type="button" onClick={share}>
+                  {t('share')}
+                </button>{' '}
+                <p aria-live="polite">{shared ? t('linkCopied') : v.favNote}</p>{' '}
                 <a className="btn b-ink" href="#contact" onClick={v.askApt}>
                   {t('getPriceInstalments')}{' '}
                   <svg width="18" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true">

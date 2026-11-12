@@ -99,14 +99,56 @@ export async function deliverLead(l: Lead): Promise<boolean> {
   return ok;
 }
 
-/** Simple per-IP limiter (single server): 5 enquiries per 10 minutes. */
+/**
+ * Rate limits (single server, in memory): 5 enquiries per 10 minutes per client, and 60 per 10 minutes in total —
+ * the total cap bounds spam to the sales chat even if a client address is forged.
+ */
+const WIN = 10 * 60_000;
 const hits = new Map<string, number[]>();
+let all: number[] = [];
 export function rateLimited(ip: string, now = Date.now()) {
-  const win = 10 * 60_000;
-  const list = (hits.get(ip) || []).filter((t) => now - t < win);
-  if (list.length >= 5) return true;
+  all = all.filter((t) => now - t < WIN);
+  const list = (hits.get(ip) || []).filter((t) => now - t < WIN);
+  if (list.length >= 5 || all.length >= 60) return true;
   list.push(now);
+  all.push(now);
   hits.set(ip, list);
-  if (hits.size > 5000) for (const [k, v] of hits) if (!v.some((t) => now - t < win)) hits.delete(k);
+  if (hits.size > 5000) for (const [k, v] of hits) if (!v.some((t) => now - t < WIN)) hits.delete(k);
   return false;
+}
+
+/**
+ * Client address as seen by our own reverse proxy (Caddy appends it as the LAST X-Forwarded-For entry;
+ * entries to the left come from the client and can be forged). Without a proxy there is no trustworthy address.
+ */
+export function clientIp(h: Headers) {
+  const xff = h.get('x-forwarded-for');
+  const last = xff
+    ?.split(',')
+    .map((x) => x.trim())
+    .filter(Boolean)
+    .at(-1);
+  return last || h.get('x-real-ip') || 'unknown';
+}
+
+/** Only the site's own pages may post enquiries (blocks cross-site form posting). */
+export function sameOrigin(h: Headers) {
+  const origin = h.get('origin');
+  if (!origin) return false;
+  let o: URL;
+  try {
+    o = new URL(origin);
+  } catch {
+    return false;
+  }
+  const hosts = [h.get('x-forwarded-host'), h.get('host')].filter(Boolean);
+  const site = env('NEXT_PUBLIC_SITE_URL');
+  if (site) {
+    try {
+      hosts.push(new URL(site).host);
+    } catch {
+      /* ignore */
+    }
+  }
+  return hosts.includes(o.host);
 }

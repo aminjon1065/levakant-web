@@ -19,13 +19,13 @@ const lead = {
   company: '',
 };
 let ipN = 0;
-const post = async (body: unknown, ip = `10.0.0.${++ipN}`) => {
+const post = async (body: unknown, ip = `10.0.0.${++ipN}`, extra: Record<string, string> = {}) => {
   const { POST } = await import('@/app/api/leads/route');
   return POST(
-    new Request('http://x/api/leads', {
+    new Request('http://site.test/api/leads', {
       method: 'POST',
       body: JSON.stringify(body),
-      headers: { 'x-forwarded-for': ip },
+      headers: { 'x-forwarded-for': ip, host: 'site.test', origin: 'http://site.test', ...extra },
     }),
   );
 };
@@ -82,6 +82,34 @@ describe('/api/leads', () => {
       const printed = JSON.stringify([...err.mock.calls, ...log.mock.calls]);
       expect(printed).not.toContain('Анвар');
       expect(printed).not.toContain('123 45 67');
+    });
+
+    it('only the site itself may post (Origin check)', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
+      expect((await post(lead, undefined, { origin: 'https://evil.example' })).status).toBe(403);
+      const { POST } = await import('@/app/api/leads/route');
+      const noOrigin = await POST(
+        new Request('http://site.test/api/leads', {
+          method: 'POST',
+          body: JSON.stringify(lead),
+          headers: { host: 'site.test' },
+        }),
+      );
+      expect(noOrigin.status).toBe(403);
+    });
+
+    it('a forged X-Forwarded-For prefix does not bypass the per-client limit', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
+      const codes = [];
+      for (let i = 0; i < 6; i++) codes.push((await post(lead, `1.1.1.${i}, 10.8.8.8`)).status);
+      expect(codes.at(-1)).toBe(429);
+    });
+
+    it('total cap: 60 enquiries per 10 minutes across all clients', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 200 }));
+      let last = 0;
+      for (let i = 0; i < 61; i++) last = (await post(lead, `10.7.${i}.1`)).status;
+      expect(last).toBe(429);
     });
 
     it('rate limit: 5 enquiries per 10 minutes per IP', async () => {

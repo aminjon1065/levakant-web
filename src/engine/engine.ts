@@ -965,6 +965,14 @@ export class Stage {
   animating() {
     return this.moving || this.st.play;
   }
+  /** Keyboard rotation: turn by `db` degrees, tilt by `del` (same limits as dragging). */
+  nudge(db: number, del: number) {
+    this.goal.b -= db;
+    this.goal.el = clamp(this.goal.el + del, 3, 88);
+    this.moving = true;
+    this.kick();
+    this.opts.onFree?.();
+  }
 
   /* -- state → scene -- */
   private sunNow() {

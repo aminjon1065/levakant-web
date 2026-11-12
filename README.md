@@ -45,7 +45,8 @@ Nothing is invented. Everything the owner must confirm comes from environment va
 | Privacy policy | `PRIVACY_POLICY_URL` | consent text without a link; the form does not accept enquiries |
 | Developer's address to buyers | `DEVELOPER_QUOTE_APPROVED=1` | hidden (draft) |
 | Construction photo channel | `CONSTRUCTION_CHANNEL_URL` | line hidden |
-| Indexing | `SITE_INDEXABLE=1` | `noindex` + `robots.txt` disallow |
+| Indexing | `SITE_INDEXABLE=1` (the build fails unless `NEXT_PUBLIC_SITE_URL` is a real https domain) | `noindex` + `robots.txt` disallow |
+| Analytics | `NEXT_PUBLIC_GA4_ID`, `NEXT_PUBLIC_YM_ID`, `NEXT_PUBLIC_META_PIXEL_ID` | no tracker loaded; `track()` calls are no-ops |
 
 Public values are applied at **build** time (pages are prerendered) — rebuild after changing them.
 
@@ -54,11 +55,21 @@ designers' «ДЕМО» mark and the footer disclaimer until real data replaces 
 
 ## Enquiries
 
-`POST /api/leads` (`src/app/api/leads/route.ts`): zod validation, honeypot, 5 requests / 10 min per IP, delivery to a
+`POST /api/leads` (`src/app/api/leads/route.ts`): same-origin check, zod validation, honeypot, 5 requests / 10 min per
+IP (the address the edge appends — the rightmost `X-Forwarded-For` entry) and 60 / 10 min in total, delivery to a
 Telegram chat (`LEADS_TELEGRAM_BOT_TOKEN`, `LEADS_TELEGRAM_CHAT_ID`) and/or a webhook (`LEADS_WEBHOOK_URL`,
 `LEADS_WEBHOOK_SECRET`). These are read at request time. The form shows success **only** after a channel confirms
 delivery; without a channel and a privacy policy it says it is not connected and keeps what was typed. No personal
 data is logged.
+
+Security headers (`next.config.ts`): CSP in production (`'self'` plus the configured analytics hosts), `nosniff`,
+`Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, HSTS on an https site URL. The rate limiter is in memory:
+one Node process; behind several instances move it to Redis or the edge.
+
+## Shareable state
+
+`?apt=<layout id>` opens the catalogue on that layout (the "Поделиться" button copies such a link); the language
+switch keeps the selected layout and the reading position.
 
 ## 3D
 
@@ -66,7 +77,8 @@ The engine (`src/engine/`) and the GLB model load only when a 3D section is ~1.5
 chunk + 3 MB model). A status chip tells the truth: loading, failed (static scheme shown), or off — no WebGL2,
 `prefers-reduced-motion`, ≤2 GB memory or Save-Data — with an opt-in button. Modest devices get a lighter render
 (no bloom, lower resolution and shadow map). `?3d=1` / `?3d=0` force either mode. State changes reach the engine
-right after the next paint, so the clicked control responds first.
+right after the next paint, so the clicked control responds first. Keyboard: focus the model (Tab) and use the arrow keys
+to rotate / tilt — the live 3D building, the CSS models and the sun scene.
 
 ## Performance notes
 

@@ -4,7 +4,7 @@
 import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useShallow } from 'zustand/react/shallow';
-import { LangSwitch } from '@/components/LangSwitch';
+import { LangSwitch, RestoreReadingPosition } from '@/components/LangSwitch';
 import { set, tf, up, useSite } from '@/lib/store';
 
 /** Section in view → highlighted nav item (mockup `spyMap`). */
@@ -64,6 +64,7 @@ export function Nav() {
       <a className="skip" href="#about">
         {t('skipToContent')}
       </a>{' '}
+      <RestoreReadingPosition />
       <nav className="nav nt p1" aria-label={t('mainNavigation')}>
         {' '}
         <a className="brand" href="#top">

@@ -1,6 +1,6 @@
 import { connection } from 'next/server';
 import { leadSchema } from '@/lib/leadSchema';
-import { deliverLead, leadsEnabled, rateLimited } from '@/lib/leads.server';
+import { clientIp, deliverLead, leadsEnabled, rateLimited, sameOrigin } from '@/lib/leads.server';
 
 /** Is the enquiry form connected? Read at request time (env may change without a rebuild). */
 export async function GET() {
@@ -9,9 +9,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  if (!sameOrigin(req.headers)) return Response.json({ error: 'forbidden' }, { status: 403 });
   if (!leadsEnabled()) return Response.json({ error: 'not_configured' }, { status: 503 });
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || req.headers.get('x-real-ip') || 'local';
-  if (rateLimited(ip)) return Response.json({ error: 'rate_limited' }, { status: 429 });
+  if (rateLimited(clientIp(req.headers))) return Response.json({ error: 'rate_limited' }, { status: 429 });
   const raw = await req.text();
   if (raw.length > 16_000) return Response.json({ error: 'too_large' }, { status: 413 });
   let body: unknown;

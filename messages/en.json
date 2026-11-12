@@ -141,7 +141,8 @@
     "getQuote": "Get a quote",
     "getQuoteWa": "Get a quote on WhatsApp",
     "waCalc": "Hello! Please send me a quote: {layout}, {fl}, {down}% down, {term} months.",
-    "waCalcFull": "Hello! Please send me a quote: {layout}, {fl}, paying in full."
+    "waCalcFull": "Hello! Please send me a quote: {layout}, {fl}, paying in full.",
+    "fullHint": "100% — pay in full with a {d}% discount"
   },
   "building": {
     "buildingIn3d": "Building in 3D",
@@ -235,7 +236,8 @@
     "todNight": "Night",
     "exAssemble": "Reassemble",
     "exExplode": "Split by floor",
-    "exTitle": "{title} · {area} m²"
+    "exTitle": "{title} · {area} m²",
+    "b3Kbd": "Building model. Left and right arrows rotate, up and down tilt"
   },
   "floorplan": {
     "floorDown": "Floor down",
@@ -346,7 +348,12 @@
     "rmOf": "{a} m² of {total} m²",
     "rmHint": "Tap a room on the plan, the model or the list",
     "rmByLabels": "Areas — as labelled on the plan",
-    "sortHint": "sorted {dir}"
+    "sortHint": "sorted {dir}",
+    "calcFromCard": "Calculate instalments",
+    "share": "Share",
+    "linkCopied": "Link to the layout copied.",
+    "shareText": "{title}, {area} m² — LEVAKANT RESIDENCE",
+    "q3Kbd": "3D apartment model. Left and right arrows rotate, up and down tilt"
   },
   "trust": {
     "developer": "Developer",
@@ -437,7 +444,9 @@
     "pause": "Pause",
     "playDay": "Play the day",
     "sunPos": "Sun: azimuth {az}°, altitude {el}°",
-    "hoursShort": "{h} h"
+    "hoursShort": "{h} h",
+    "sunNow": "sun now",
+    "kbdHint": "Arrow keys rotate and tilt."
   },
   "location": {
     "location": "Location",

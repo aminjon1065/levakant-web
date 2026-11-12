@@ -119,7 +119,10 @@ export function useStage(canvas: RefObject<HTMLCanvasElement | null>, mode: 'exp
           ...base,
           mode,
           dayRange: (k) => [d.sun[k].riseM, d.sun[k].setM],
-          onFirstFrame: () => set({ glSun: true, sunSt: 'ready' }),
+          onFirstFrame: () => {
+            set({ glSun: true, sunSt: 'ready' });
+            cv.tabIndex = 0;
+          },
           onTime: (m) => set({ sunM: m }),
         });
         stage.set(sunState(get()));
@@ -131,6 +134,19 @@ export function useStage(canvas: RefObject<HTMLCanvasElement | null>, mode: 'exp
         };
       }
     };
+    // keyboard: arrows rotate / tilt the live scene (the building's container is focusable; the sun canvas becomes so)
+    const keyTarget: HTMLElement = mode === 'explore' ? ((cv.closest('#b3') as HTMLElement) ?? cv) : cv;
+    const onKey = (e: KeyboardEvent) => {
+      if (!stage || e.target !== keyTarget) return;
+      if (mode === 'explore' && !get().glB3) return;
+      const k = (
+        { ArrowLeft: [-15, 0], ArrowRight: [15, 0], ArrowUp: [0, 8], ArrowDown: [0, -8] } as Record<string, number[]>
+      )[e.key];
+      if (!k) return;
+      e.preventDefault();
+      stage.nudge(k[0], k[1]);
+    };
+    keyTarget.addEventListener('keydown', onKey);
     const io = new IntersectionObserver(
       (es) => {
         if (es.some((e) => e.isIntersecting)) {
@@ -144,6 +160,7 @@ export function useStage(canvas: RefObject<HTMLCanvasElement | null>, mode: 'exp
     io.observe(cv.closest('section') ?? cv);
     return () => {
       dead = true;
+      keyTarget.removeEventListener('keydown', onKey);
       io.disconnect();
       unsub();
       stage?.dispose();

@@ -4,6 +4,7 @@ import type { KeyboardEvent, MouseEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { useShallow } from 'zustand/react/shallow';
 import { useSiteData } from '@/components/SiteProvider';
+import { track } from './analytics';
 import { set, tf, up, useSite, type SiteState } from './store';
 import type { PlanKey } from './types';
 
@@ -206,7 +207,10 @@ export function useExplorerVals() {
   }));
   const toggleEx = s.ex
     ? up({ ex: false, op: false })
-    : up({ ex: true, op: false, ...(s.view === 'top' ? { view: 'corner' as const, ry: near(-36), rx: -17 } : {}) });
+    : () => {
+        set({ ex: true, op: false, ...(s.view === 'top' ? { view: 'corner' as const, ry: near(-36), rx: -17 } : {}) });
+        track('building_explode');
+      };
   const stage = !s.ex ? 1 : !s.op ? 2 : !ex ? 3 : 4;
   const stc = (n: number) => (n === stage ? 'on' : n < stage ? 'done' : '');
   const floorName = isBase ? t('levelBLower') : cf!.t;

@@ -7,12 +7,11 @@ import { useShallow } from 'zustand/react/shallow';
 import { useSiteData } from '@/components/SiteProvider';
 import { focusLater } from '@/lib/actions';
 import { leadFieldErrors } from '@/lib/leadRules';
+import { track } from '@/lib/analytics';
 import type { Lead } from '@/lib/leadSchema';
 import { waHref } from '@/lib/links';
-import { favList, get, set, tf, up, useSite } from '@/lib/store';
+import { favList, get, set, tf, up, useSite, type SiteState, type Want } from '@/lib/store';
 
-const METHODS = { m1: 'call', m2: 'whatsapp', m3: 'telegram' } as const;
-const WANTS = { w1: 'prices', w2: 'catalog', w3: 'viewing', w4: 'video' } as const;
 const FLN = { typ: 'flTyp', f9: 'flF9', ph: 'flPh' } as const;
 
 /** UTM tags of the landing URL, kept for the session and attached to the enquiry. */
@@ -29,9 +28,21 @@ function utm(): Record<string, string> {
   }
 }
 
+/** Interest options of the form (value → message key). */
+const INTEREST = {
+  r1: 'n1Bedroom3554',
+  r2: 'n2Bedroom6382',
+  r4: 'n4Bedroom13356',
+  ph: 'apartmentWithPenthouseZone',
+  com: 'commercialSpace',
+} as const;
+const EMPTY_FORM: Partial<SiteState> = { fName: '', fTel: '', fMsg: '', fApt: '', fMethod: '', fWants: [], fHp: '' };
+
 /** Enquiry form (mockup renderVals: "contact"). Success is shown only after the server confirms delivery. */
 function useContactVals() {
   const t = useTranslations('contact');
+  const methodLabel = (m: 'call' | 'whatsapp' | 'telegram') =>
+    m === 'call' ? t('call') : m === 'whatsapp' ? 'WhatsApp' : 'Telegram';
   const tp = useTranslations('price');
   const { d, locale } = useSiteData();
   const s = useSite(
@@ -79,36 +90,29 @@ function useContactVals() {
   if (s.favCom) picks.push({ label: t('commercialSpace'), aria: t('removeCommercial'), rm: up({ favCom: false }) });
   const errs = s.err ? s.err.split('|') : [];
   const send = async () => {
-    const val = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value.trim() ?? '';
-    const name = val('f-name');
-    const tel = val('f-tel');
+    const x = get();
+    const name = x.fName.trim();
+    const tel = x.fTel.trim();
     const e = leadFieldErrors(name, tel);
     if (e.length) {
       set({ err: e.join('|'), sendErr: '' });
       focusLater(e[0] === 'name' ? 'f-name' : 'f-tel');
       return;
     }
-    const m = document.querySelector<HTMLInputElement>('input[name="m"]:checked');
-    const ml = m ? document.querySelector(`label[for="${m.id}"]`) : null;
-    const wants = [...document.querySelectorAll<HTMLInputElement>('input[name="w"]:checked')]
-      .map((x) => WANTS[x.id as keyof typeof WANTS])
-      .filter(Boolean);
-    const sel = document.getElementById('f-apt') as HTMLSelectElement | null;
-    const x = get();
     const lead: Lead = {
       name,
       phone: tel,
-      method: m ? (METHODS[m.id as keyof typeof METHODS] ?? null) : null,
-      wants,
-      interest: sel && sel.selectedIndex > 0 ? sel.options[sel.selectedIndex].text : null,
-      message: val('f-msg'),
+      method: x.fMethod || null,
+      wants: x.fWants,
+      interest: x.fApt ? t(INTEREST[x.fApt as keyof typeof INTEREST]) : null,
+      message: x.fMsg.trim(),
       layouts: favList(x.fav).filter((id) => L[id]),
       commercial: x.favCom,
       calc: x.calc,
       locale: locale as Lead['locale'],
       page: window.location.origin + window.location.pathname,
       utm: utm(),
-      company: val('f-company'),
+      company: x.fHp,
     };
     set({ err: '', sendErr: '', sending: true });
     try {
@@ -118,7 +122,14 @@ function useContactVals() {
         body: JSON.stringify(lead),
       });
       if (r.ok) {
-        set({ sending: false, sent: true, sName: name, sTel: tel, sMethod: ml?.textContent ?? t('notSelected') });
+        track('lead_submit', { method: x.fMethod || 'none', layouts: lead.layouts.length, calc: !!x.calc });
+        set({
+          sending: false,
+          sent: true,
+          sName: name,
+          sTel: tel,
+          sMethod: x.fMethod ? methodLabel(x.fMethod) : t('notSelected'),
+        });
         return;
       }
       const j = (await r.json().catch(() => ({}))) as { error?: string; fields?: string[] };
@@ -127,6 +138,7 @@ function useContactVals() {
         set({ sending: false, err: fe });
         return;
       }
+      track('lead_error', { status: r.status });
       set({
         sending: false,
         sendErr: r.status === 503 ? 'not_configured' : r.status === 429 ? 'rate' : 'failed',
@@ -143,7 +155,7 @@ function useContactVals() {
     send,
     sending: s.sending,
     sendLabel: s.sending ? t('sending') : t('sendLabel'),
-    resetForm: up({ sent: false, err: '', sendErr: '', fav: '', favCom: false, calc: null }),
+    resetForm: up({ sent: false, err: '', sendErr: '', fav: '', favCom: false, calc: null, ...EMPTY_FORM }),
     picks,
     hasPicks: picks.length > 0,
     noPicks: picks.length === 0,
@@ -166,6 +178,19 @@ export function Contact() {
   const t = useTranslations('contact');
   const { cfg, locale } = useSiteData();
   const v = useContactVals();
+  const f = useSite(
+    useShallow((x) => ({
+      fName: x.fName,
+      fTel: x.fTel,
+      fMsg: x.fMsg,
+      fApt: x.fApt,
+      fMethod: x.fMethod,
+      fWants: x.fWants,
+      fHp: x.fHp,
+    })),
+  );
+  const toggleWant = (w: Want) =>
+    set({ fWants: f.fWants.includes(w) ? f.fWants.filter((x) => x !== w) : [...f.fWants, w] });
   const office = cfg.office[locale as 'ru'];
   const hours = cfg.hours[locale as 'ru'];
   const wa = waHref(cfg, t('waHello'));
@@ -290,6 +315,8 @@ export function Contact() {
                   </label>
                   <input
                     id="f-name"
+                    value={f.fName}
+                    onChange={(e) => set({ fName: e.target.value })}
                     type="text"
                     name="name"
                     autoComplete="name"
@@ -307,6 +334,8 @@ export function Contact() {
                   </label>
                   <input
                     id="f-tel"
+                    value={f.fTel}
+                    onChange={(e) => set({ fTel: e.target.value })}
                     type="tel"
                     name="tel"
                     autoComplete="tel"
@@ -325,9 +354,29 @@ export function Contact() {
                   </span>{' '}
                   <div className="rd" role="radiogroup" aria-labelledby="lg-m">
                     {' '}
-                    <input type="radio" name="m" id="m1" />
-                    <label htmlFor="m1">{t('call')}</label> <input type="radio" name="m" id="m2" />
-                    <label htmlFor="m2">{'WhatsApp'}</label> <input type="radio" name="m" id="m3" />
+                    <input
+                      type="radio"
+                      name="m"
+                      id="m1"
+                      checked={f.fMethod === 'call'}
+                      onChange={() => set({ fMethod: 'call' })}
+                    />
+                    <label htmlFor="m1">{t('call')}</label>{' '}
+                    <input
+                      type="radio"
+                      name="m"
+                      id="m2"
+                      checked={f.fMethod === 'whatsapp'}
+                      onChange={() => set({ fMethod: 'whatsapp' })}
+                    />
+                    <label htmlFor="m2">{'WhatsApp'}</label>{' '}
+                    <input
+                      type="radio"
+                      name="m"
+                      id="m3"
+                      checked={f.fMethod === 'telegram'}
+                      onChange={() => set({ fMethod: 'telegram' })}
+                    />
                     <label htmlFor="m3">{'Telegram'}</label>{' '}
                   </div>{' '}
                 </div>{' '}
@@ -338,10 +387,37 @@ export function Contact() {
                   </span>{' '}
                   <div className="rd ck" role="group" aria-labelledby="lg-w">
                     {' '}
-                    <input type="checkbox" name="w" id="w1" />
-                    <label htmlFor="w1">{t('pricesInstalments')}</label> <input type="checkbox" name="w" id="w2" />
-                    <label htmlFor="w2">{t('layoutCatalogue')}</label> <input type="checkbox" name="w" id="w3" />
-                    <label htmlFor="w3">{t('bookAViewing')}</label> <input type="checkbox" name="w" id="w4" />
+                    <input
+                      type="checkbox"
+                      name="w"
+                      id="w1"
+                      checked={f.fWants.includes('prices')}
+                      onChange={() => toggleWant('prices')}
+                    />
+                    <label htmlFor="w1">{t('pricesInstalments')}</label>{' '}
+                    <input
+                      type="checkbox"
+                      name="w"
+                      id="w2"
+                      checked={f.fWants.includes('catalog')}
+                      onChange={() => toggleWant('catalog')}
+                    />
+                    <label htmlFor="w2">{t('layoutCatalogue')}</label>{' '}
+                    <input
+                      type="checkbox"
+                      name="w"
+                      id="w3"
+                      checked={f.fWants.includes('viewing')}
+                      onChange={() => toggleWant('viewing')}
+                    />
+                    <label htmlFor="w3">{t('bookAViewing')}</label>{' '}
+                    <input
+                      type="checkbox"
+                      name="w"
+                      id="w4"
+                      checked={f.fWants.includes('video')}
+                      onChange={() => toggleWant('video')}
+                    />
                     <label htmlFor="w4">{t('videoCall')}</label>{' '}
                   </div>{' '}
                 </div>{' '}
@@ -350,7 +426,7 @@ export function Contact() {
                     {' '}
                     <div className="fd w">
                       <label htmlFor="f-apt">{t('whatAreYouLooking')}</label>{' '}
-                      <select id="f-apt" name="apt">
+                      <select id="f-apt" name="apt" value={f.fApt} onChange={(e) => set({ fApt: e.target.value })}>
                         {' '}
                         <option value="">{t('notSureYet')}</option> <option value="r1">{t('n1Bedroom3554')}</option>{' '}
                         <option value="r2">{t('n2Bedroom6382')}</option>{' '}
@@ -365,11 +441,26 @@ export function Contact() {
                   <label htmlFor="f-msg">
                     {t('message')} <span className="opt">{t('optional')}</span>
                   </label>
-                  <textarea id="f-msg" name="msg" rows={2} placeholder={t('questionOrWishes')}></textarea>
+                  <textarea
+                    id="f-msg"
+                    name="msg"
+                    rows={2}
+                    placeholder={t('questionOrWishes')}
+                    value={f.fMsg}
+                    onChange={(e) => set({ fMsg: e.target.value })}
+                  ></textarea>
                 </div>{' '}
                 <div className="hp" aria-hidden="true">
                   <label htmlFor="f-company">Company</label>
-                  <input id="f-company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+                  <input
+                    id="f-company"
+                    name="company"
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={f.fHp}
+                    onChange={(e) => set({ fHp: e.target.value })}
+                  />
                 </div>
                 {(v.leadsOff || v.sendErr) && (
                   <div className="fm-st" role={v.sendErr ? 'alert' : 'note'} id="fm-st">

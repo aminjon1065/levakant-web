@@ -52,7 +52,10 @@ a.tl-s{text-decoration:underline;text-underline-offset:3px}
 /* sections below the hero are laid out and painted only when they approach the viewport: their fonts,
    images and layout work leave the first-load path. Rendering is unchanged once they are near. */
 @supports (content-visibility:auto){
-#about,#price,#building,#floorplan,#apartments,#trust,#lifestyle,#location,#gallery,#architecture,#commerce,#contact,.ft{content-visibility:auto;contain-intrinsic-size:auto 1400px}
+#about,#price,#building,#floorplan,#apartments,#trust,#lifestyle,#location,#gallery,#architecture,#commerce,#contact,.ft{content-visibility:auto;contain-intrinsic-size:auto 600px}
+/* measured heights (1440 / 390): before a section renders it already takes about its real space */
+#about{contain-intrinsic-size:auto 1339px}#price{contain-intrinsic-size:auto 1357px}#building{contain-intrinsic-size:auto 1228px}#floorplan{contain-intrinsic-size:auto 952px}#apartments{contain-intrinsic-size:auto 1695px}#trust{contain-intrinsic-size:auto 1456px}#lifestyle{contain-intrinsic-size:auto 2198px}#location{contain-intrinsic-size:auto 622px}#gallery{contain-intrinsic-size:auto 770px}#architecture{contain-intrinsic-size:auto 2608px}#commerce{contain-intrinsic-size:auto 1628px}#contact{contain-intrinsic-size:auto 928px}
+@media (max-width:760px){#about{contain-intrinsic-size:auto 1907px}#price{contain-intrinsic-size:auto 2287px}#building{contain-intrinsic-size:auto 1747px}#floorplan{contain-intrinsic-size:auto 1077px}#apartments{contain-intrinsic-size:auto 2908px}#trust{contain-intrinsic-size:auto 2752px}#lifestyle{contain-intrinsic-size:auto 2573px}#location{contain-intrinsic-size:auto 948px}#gallery{contain-intrinsic-size:auto 520px}#architecture{contain-intrinsic-size:auto 2187px}#commerce{contain-intrinsic-size:auto 1951px}#contact{contain-intrinsic-size:auto 1434px}}
 }
 
 /* sky mask behind the wordmark: same image as lossless WebP (8 KB instead of 25 KB) */
@@ -78,3 +81,14 @@ a.tl-s{text-decoration:underline;text-underline-offset:3px}
 
 /* apartment plan viewer: definite column, so the plan box keeps its size before the (lazy) image arrives */
 .cv-p{grid-template-columns:100%}
+
+/* sun table: "· sun now" comes from the messages (the mockup's CSS ::after texts are switched off) */
+.sun-r.on small::after,.lr[lang=tg] .sun-r.on small::after,.lr[lang=en] .sun-r.on small::after{content:none}
+.sun-now{font-weight:600;color:var(--br)}
+/* calculator: what 100 % means */
+.pc-hint{margin:-6px 0 4px;font-size:11.5px;line-height:1.45;color:var(--md)}
+/* apartment card: open the calculator with this layout */
+.cv-px .cv-calc{align-self:flex-start;margin-top:6px;min-height:36px}
+/* keyboard-rotatable models show focus */
+#q3:focus-visible,#b3:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+.sun-gl:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
