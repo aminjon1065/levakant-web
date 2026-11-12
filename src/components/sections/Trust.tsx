@@ -1,0 +1,184 @@
+// Generated from levakant-source/src/main.html <!--s:trust--> — hand-maintained from here on.
+import { useTranslations } from 'next-intl';
+import { ActionLink } from '@/components/ActionLink';
+
+export function Trust() {
+  const t = useTranslations('trust');
+  return (
+    <>
+      {' '}
+      <section className="sec dk p2 tr-s" id="trust">
+        {' '}
+        <div className="wrap">
+          {' '}
+          <div className="sh rv">
+            {' '}
+            <div>
+              {' '}
+              <div className="ey">
+                <b>{'05'}</b>
+                <i></i>
+                {t('developer')}
+              </div>{' '}
+              <h2 className="h2">
+                {t('builtBy')} <em>{t('akaiMuMin')}</em>
+              </h2>{' '}
+            </div>{' '}
+            <p className="lead mt">{t('anApartmentIsA')}</p>{' '}
+          </div>{' '}
+          <div className="tr">
+            {' '}
+            <div className="tr-p rv">
+              {' '}
+              <div className="tr-ph">
+                <span className="sf">{t('am')}</span>
+              </div>{' '}
+              <div className="tr-pt">
+                {' '}
+                <span className="lb">{t('developer')}</span> <b className="sf">{t('akaiMuMin')}</b>{' '}
+                <blockquote className="tr-q">
+                  <p>{t('weAreBuildingA')}</p>
+                  <span>{t('draftMessageToBe')}</span>
+                </blockquote>{' '}
+                <dl className="led">
+                  {' '}
+                  <div>
+                    <dt>{t('design')}</dt>
+                    <dd>{t('arkhitekturaIDizainLlc')}</dd>
+                  </div>{' '}
+                </dl>{' '}
+              </div>{' '}
+            </div>{' '}
+            <div className="tr-d rv">
+              {' '}
+              <span className="lb">{t('documents')}</span>{' '}
+              <ul className="dc">
+                {' '}
+                <li>
+                  <div>
+                    <b>{t('conceptDesign')}</b>
+                    <span>{t('arkhitekturaIDizainLlc')}</span>
+                  </div>
+                  <span className="st ok">{t('ready')}</span>
+                </li>{' '}
+                <li>
+                  <div>
+                    <b>{t('buildingPermit')}</b>
+                    <span>{t('confirmsTheConstructionIs')}</span>
+                  </div>
+                  <span className="st">{'PDF'}</span>
+                </li>{' '}
+                <li>
+                  <div>
+                    <b>{t('stateDesignReview')}</b>
+                    <span>{t('theDesignIsChecked')}</span>
+                  </div>
+                  <span className="st">{'PDF'}</span>
+                </li>{' '}
+                <li>
+                  <div>
+                    <b>{t('landTitle')}</b>
+                    <span>{t('theDeveloperSRight')}</span>
+                  </div>
+                  <span className="st">{'PDF'}</span>
+                </li>{' '}
+                <li>
+                  <div>
+                    <b>{t('sampleSaleContract')}</b>
+                    <span>{t('contractCertifiedByA')}</span>
+                  </div>
+                  <span className="st">{'PDF'}</span>
+                </li>{' '}
+              </ul>{' '}
+              <p className="tr-x">{t('adviceForAnyBuyer')}</p>{' '}
+            </div>{' '}
+          </div>{' '}
+          <div className="tl rv">
+            {' '}
+            <div className="tl-h">
+              <span className="lb">{t('constructionProgress')}</span>
+              <span className="tl-s">{t('monthlySitePhotoReport')}</span>
+            </div>{' '}
+            <ol className="tl-l">
+              {' '}
+              <li className="dn">
+                <i></i>
+                <b>{t('conceptDesign')}</b>
+                <span>{'2026'}</span>
+              </li>{' '}
+              <li className="cu">
+                <i></i>
+                <b>{t('permitExpertReview')}</b>
+                <span>{t('q42026')}</span>
+              </li>{' '}
+              <li>
+                <i></i>
+                <b>{t('excavationFoundations')}</b>
+                <span>{'2027'}</span>
+              </li>{' '}
+              <li>
+                <i></i>
+                <b>{t('frameRoof')}</b>
+                <span>{'2027–2028'}</span>
+              </li>{' '}
+              <li>
+                <i></i>
+                <b>{t('faAdeServices')}</b>
+                <span>{'2028'}</span>
+              </li>{' '}
+              <li>
+                <i></i>
+                <b>{t('completion')}</b>
+                <span>{t('q42028')}</span>
+              </li>{' '}
+            </ol>{' '}
+          </div>{' '}
+          <div className="abr rv" id="abroad">
+            {' '}
+            <div className="abr-h">
+              {' '}
+              <h3 className="h3">{t('buyingFromRussiaOr')}</h3> <p className="mt">{t('youCanChooseAnd')}</p>{' '}
+              <ActionLink action="askVideo" className="btn b-gold" href="#contact">
+                {t('bookAVideoCall')}{' '}
+                <svg width="18" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true">
+                  <path d="M0 5h16M12 1l4 4-4 4" stroke="currentColor" strokeWidth="1.3"></path>
+                </svg>
+              </ActionLink>{' '}
+            </div>{' '}
+            <ol className="abr-s">
+              {' '}
+              <li>
+                <b>{'1'}</b>
+                <div>
+                  <h4>{t('videoCall')}</h4>
+                  <p>{t('aManagerShowsYou')}</p>
+                </div>
+              </li>{' '}
+              <li>
+                <b>{'2'}</b>
+                <div>
+                  <h4>{t('reservation')}</h4>
+                  <p>{t('theApartmentIsHeld')}</p>
+                </div>
+              </li>{' '}
+              <li>
+                <b>{'3'}</b>
+                <div>
+                  <h4>{t('contract')}</h4>
+                  <p>{t('byPowerOfAttorney')}</p>
+                </div>
+              </li>{' '}
+              <li>
+                <b>{'4'}</b>
+                <div>
+                  <h4>{t('payment')}</h4>
+                  <p>{t('byTransferToThe')}</p>
+                </div>
+              </li>{' '}
+            </ol>{' '}
+          </div>{' '}
+        </div>{' '}
+      </section>{' '}
+    </>
+  );
+}

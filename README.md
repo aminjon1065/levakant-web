@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LEVAKANT RESIDENCE — website
 
-## Getting Started
+Production site for the LEVAKANT RESIDENCE residential building (Levakant, Tajikistan),
+ported from the approved design mockup without redesign.
 
-First, run the development server:
+**Stack:** Next.js 16 (App Router, Turbopack, Cache Components) · React 19 · TypeScript (strict) ·
+next-intl (`/ru`, `/tg`, `/en`) · zustand · three.js · Vitest · Playwright.
+
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
+pnpm dev            # http://localhost:3000 → /ru
+pnpm build && pnpm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Check
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm typecheck && pnpm lint
+pnpm test           # unit: prices, filters, sun position, translations
+pnpm test:e2e       # Playwright scenarios at 1440 / 834 / 390 (starts `pnpm start`)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To reuse an installed Chromium instead of downloading one:
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE=/path/to/chrome pnpm test:e2e`. Against a running server: `BASE_URL=http://localhost:3000`.
 
-## Learn More
+## Layout
 
-To learn more about Next.js, take a look at the following resources:
+| Path | What |
+|---|---|
+| `src/app/[locale]/` | root layout (fonts, CSS, i18n provider) and the one-page site |
+| `src/components/sections/` | one component per mockup section (`<!--s:name-->` in the mockup source) |
+| `src/lib/` | ported mockup logic: `store` (page state), `pricing`, `catalog`, `explorer` (3D building + floor plan), `sun`, `drag`, `gallery`, `actions` |
+| `src/styles/` | mockup CSS, verbatim, in its original layer order (`main → v4 → v5 → v6 → v7 → v8`) |
+| `src/content/` | project data: `levakant-data.json` (source) → `data.{ru,tg,en}.json` (generated), demo `pricing.ts`, demo `site.ts` contacts |
+| `messages/` | UI strings per locale (next-intl, ICU) |
+| `tools/i18n/` | mockup dictionary + scripts: `pnpm data:build`, `pnpm i18n:fill` |
+| `public/assets`, `public/3d`, `public/fonts` | renders, plans, masks, GLB model, self-hosted fonts |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Content rules
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Prices, payment terms, dates and contacts are **demo values from the mockup** (`isDemo: true` in
+  `src/content/pricing.ts` and `src/content/site.ts`). While any is demo, the footer says so.
+- New UI string: add it to `messages/ru.json`, run `pnpm i18n:fill` (prefills TJ/EN from the mockup
+  dictionary, lists what needs a human), put hand translations into `tools/i18n/manual.json`.
+  `pnpm test` fails if TJ/EN miss a key or still contain Russian.
+- TJ and EN texts are drafts and need proofreading by native speakers.
