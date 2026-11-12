@@ -10,6 +10,11 @@ import { create } from 'zustand';
 export interface SiteState {
   // 3D building explorer
   glB3: boolean;
+  /** live 3D status per stage: '' (not started yet) | loading | ready | error | off-webgl | off-pref | off-device */
+  b3St: string;
+  sunSt: string;
+  /** visitor opted in to 3D (reduced motion / modest device) */
+  force3d: boolean;
   enter: boolean;
   tod: 'day' | 'dusk' | 'night';
   floor: string;
@@ -64,6 +69,12 @@ export interface SiteState {
   sName: string;
   sTel: string;
   sMethod: string;
+  /** '' | 'not_configured' | 'rate' | 'failed' — why the last submit did not go through */
+  sendErr: string;
+  /** is the enquiry channel connected? null until /api/leads answers */
+  leadsOn: boolean | null;
+  /** calculator parameters attached to the enquiry ("Получить расчёт") */
+  calc: { layout: string; floors: 'typ' | 'f9' | 'ph'; down: number; term: number } | null;
   // price calculator
   pcApt: string;
   pcFl: 'typ' | 'f9' | 'ph';
@@ -73,6 +84,9 @@ export interface SiteState {
 
 export const initialState: SiteState = {
   glB3: false,
+  b3St: '',
+  sunSt: '',
+  force3d: false,
   enter: false,
   tod: 'dusk',
   floor: '5',
@@ -121,6 +135,9 @@ export const initialState: SiteState = {
   sName: '',
   sTel: '',
   sMethod: '',
+  sendErr: '',
+  leadsOn: null,
+  calc: null,
   pcApt: 'b6329',
   pcFl: 'typ',
   pcDown: 30,

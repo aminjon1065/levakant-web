@@ -4,7 +4,9 @@
 import { Fragment, type ChangeEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { useShallow } from 'zustand/react/shallow';
+import { DemoTag } from '@/components/DemoTag';
 import { useSiteData } from '@/components/SiteProvider';
+import { waHref } from '@/lib/links';
 import { preFill, withFav } from '@/lib/actions';
 import { area, nf } from '@/lib/format';
 import { allMin, calc, moOf, pxMin } from '@/lib/pricing';
@@ -21,7 +23,7 @@ const FLN = { typ: 'flTyp', f9: 'flF9', ph: 'flPh' } as const;
 /** Prices, instalment calculator (mockup renderVals: "prices — demo model"). */
 function usePriceVals() {
   const t = useTranslations('price');
-  const { d, pricing: p, locale } = useSiteData();
+  const { d, pricing: p, locale, cfg } = useSiteData();
   const s = useSite(useShallow((x) => ({ pcApt: x.pcApt, pcFl: x.pcFl, pcDown: x.pcDown, pcTerm: x.pcTerm })));
   const L = d.L;
   const n = (v: number) => nf(locale, v);
@@ -89,16 +91,34 @@ function usePriceVals() {
     pcRestK: c.full ? t('discount') : t('rest'),
     pcRest: c.full ? t('restFull', { v: n(c.discount) }) : t('restTerm', { v: n(c.rest), m: s.pcTerm }),
     pcM2: n(p.pxm[pcFl]),
+    // "Получить расчёт": the calculation goes into the enquiry form…
     askCalc: () => {
-      set({ fav: withFav(pcId), sent: false });
+      set({
+        fav: withFav(pcId),
+        sent: false,
+        calc: { layout: pcId, floors: pcFl, down: s.pcDown, term: c.full ? 0 : s.pcTerm },
+      });
       preFill({ wa: true, w: ['w1'] });
     },
+    // …or straight into WhatsApp when a verified number is configured
+    waCalc: waHref(
+      cfg,
+      c.full
+        ? t('waCalcFull', { layout: pcL.title + ' ' + t('areaOne', { a: pcL.as }), fl: t(FLN[pcFl]) })
+        : t('waCalc', {
+            layout: pcL.title + ' ' + t('areaOne', { a: pcL.as }),
+            fl: t(FLN[pcFl]),
+            down: s.pcDown,
+            term: s.pcTerm,
+          }),
+    ),
   };
 }
 
 export function Price() {
   const t = useTranslations('price');
   const v = usePriceVals();
+  const { demo } = useSiteData();
   return (
     <>
       {' '}
@@ -143,6 +163,7 @@ export function Price() {
               {' '}
               <div className="pc-h">
                 <span className="lb">{t('instalmentCalculator')}</span>
+                <DemoTag on={demo} />
               </div>{' '}
               <div className="pc-a">
                 {' '}
@@ -152,7 +173,7 @@ export function Price() {
                   </svg>
                 </button>{' '}
                 <div className="pc-ap">
-                  <img src={v.pcImg} alt="" />
+                  <img src={v.pcImg} alt="" loading="lazy" decoding="async" />
                   <span>
                     <b>{v.pcTitle}</b>
                     <span>{t('pcareaPcside', { pcArea: v.pcArea, pcSide: v.pcSide })}</span>
@@ -227,8 +248,13 @@ export function Price() {
                   </div>{' '}
                 </dl>{' '}
               </div>{' '}
-              <a className="btn b-gold" href="#contact" onClick={v.askCalc}>
-                {t('getTheQuoteOn')}{' '}
+              <a
+                className="btn b-gold"
+                {...(v.waCalc
+                  ? { href: v.waCalc, target: '_blank', rel: 'noopener noreferrer' }
+                  : { href: '#contact', onClick: v.askCalc })}
+              >
+                {v.waCalc ? t('getQuoteWa') : t('getQuote')}{' '}
                 <svg width="18" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true">
                   <path d="M0 5h16M12 1l4 4-4 4" stroke="currentColor" strokeWidth="1.3"></path>
                 </svg>
@@ -242,6 +268,7 @@ export function Price() {
                   <h3>{t('payInFull')}</h3>
                   <p>{t('n5OffTheApartment')}</p>
                 </div>
+                <DemoTag on={demo} />
               </article>{' '}
               <article className="on">
                 <span className="po-n">{'02'}</span>
@@ -249,6 +276,7 @@ export function Price() {
                   <h3>{t('developerInstalmentPlan')}</h3>
                   <p>{t('noMarkUpAnd')}</p>
                 </div>
+                <DemoTag on={demo} />
               </article>{' '}
               <article>
                 <span className="po-n">{'03'}</span>
@@ -256,6 +284,7 @@ export function Price() {
                   <h3>{t('mortgage')}</h3>
                   <p>{t('throughAPartnerBank')}</p>
                 </div>
+                <DemoTag on={demo} />
               </article>{' '}
               <article>
                 <span className="po-n">{'04'}</span>
@@ -269,8 +298,9 @@ export function Price() {
                     </svg>
                   </a>
                 </div>
+                <DemoTag on={demo} />
               </article>{' '}
-              <p className="po-x">{t('thePriceAndPayment')}</p>{' '}
+              <p className="po-x">{demo ? t('demoNote') : t('thePriceAndPayment')}</p>{' '}
             </div>{' '}
           </div>{' '}
         </div>{' '}

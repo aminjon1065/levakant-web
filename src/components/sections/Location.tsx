@@ -1,7 +1,10 @@
 // Generated from levakant-source/src/main.html <!--s:location--> — hand-maintained from here on.
 import { useTranslations } from 'next-intl';
+import { DemoTag } from '@/components/DemoTag';
+import type { PublicConfig } from '@/lib/config';
 
-export function Location() {
+/** Map links appear only when the owner has confirmed the plot location (MAP_2GIS_URL / MAP_GOOGLE_URL). */
+export function Location({ demo, cfg }: { demo: boolean; cfg: PublicConfig }) {
   const t = useTranslations('location');
   return (
     <>
@@ -29,7 +32,11 @@ export function Location() {
               <dt>{t('address')}</dt>
               <dd>{t('ismoiliSomoniStLevakant')}</dd> <dt>{t('nearby')}</dt>
               <dd>{t('leninStVictoryPark')}</dd> <dt>{t('drive')}</dt>
-              <dd>{t('about15MinutesBy')}</dd> <dt>{t('pin')}</dt>
+              <dd>
+                {t('about15MinutesBy')}
+                <DemoTag on={demo} />
+              </dd>{' '}
+              <dt>{t('pin')}</dt>
               <dd>{t('n37869N68')}</dd>{' '}
             </dl>{' '}
             <p className="mt" style={{ fontSize: '12.5px', lineHeight: '1.5' }}>
@@ -152,10 +159,20 @@ export function Location() {
             </svg>{' '}
             <div className="mk">
               <span>{t('siteDiagramPerMaster')}</span>
-              <span className="mk-l">
-                <a href="#location">{t('openIn2gis')}</a>
-                <a href="#location">{'Google Maps'}</a>
-              </span>
+              {(cfg.maps.gis || cfg.maps.google) && (
+                <span className="mk-l">
+                  {cfg.maps.gis && (
+                    <a href={cfg.maps.gis} target="_blank" rel="noopener noreferrer">
+                      {t('openIn2gis')}
+                    </a>
+                  )}
+                  {cfg.maps.google && (
+                    <a href={cfg.maps.google} target="_blank" rel="noopener noreferrer">
+                      {'Google Maps'}
+                    </a>
+                  )}
+                </span>
+              )}
             </div>{' '}
           </div>{' '}
         </div>{' '}

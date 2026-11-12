@@ -144,6 +144,8 @@ export function loadModel(url: string) {
 }
 
 const planTex = new Map<string, Promise<THREE.CanvasTexture | null>>();
+const planTexSet = new WeakSet<THREE.Texture>();
+const planTexOwned = (t: THREE.Texture) => planTexSet.has(t);
 function loadPlanTexture(url: string) {
   let p = planTex.get(url);
   if (!p) {
@@ -163,6 +165,7 @@ function loadPlanTexture(url: string) {
         const t = new THREE.CanvasTexture(c);
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = 4;
+        planTexSet.add(t);
         res(t);
       };
       im.onerror = () => res(null);
@@ -647,6 +650,8 @@ export interface StageOptions {
   dayRange?: (date: SunDateKey) => [number, number];
   /** jump to the target view without easing */
   snap?: boolean;
+  /** 'low': no bloom, lower resolution and shadow map — for modest devices */
+  quality?: 'high' | 'low';
   onFirstFrame?: () => void;
   onFloor?: (k: string) => void;
   onApt?: (id: string) => void;
@@ -768,6 +773,8 @@ export class Stage {
   private zoneGroup = new THREE.Group();
   private zones: ZoneRt[] = [];
   private zoneFloor: FloorRt | null = null;
+  /** geometry / materials of the cached model — shared between stages and remounts, never disposed */
+  private shared = new Set<object>();
   private decal: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial> | null = null;
 
   constructor(canvas: HTMLCanvasElement, opts: StageOptions) {
@@ -802,6 +809,12 @@ export class Stage {
     const scene = new THREE.Scene();
     this.scene = scene;
     this.gu = { uGlow: { value: 0 }, uLitFrac: { value: 0 }, uCap: { value: new THREE.Color('#2a2b2e') } };
+    gltf.scene.traverse((o) => {
+      if (o instanceof THREE.Mesh) {
+        this.shared.add(o.geometry);
+        materialsOf(o).forEach((m) => this.shared.add(m));
+      }
+    });
     const root = gltf.scene.clone(true);
     scene.add(root);
     root.updateMatrixWorld(true);
@@ -887,7 +900,7 @@ export class Stage {
     scene.add(this.hemi);
     const sun = new THREE.DirectionalLight(0xffffff, 3);
     sun.castShadow = true;
-    const sm = innerWidth < 760 ? 1024 : 2048;
+    const sm = innerWidth < 760 || this.opts.quality === 'low' ? 1024 : 2048;
     sun.shadow.mapSize.set(sm, sm);
     Object.assign(sun.shadow.camera, { left: -58, right: 58, top: 58, bottom: -58, near: 60, far: 400 });
     sun.shadow.camera.updateProjectionMatrix();
@@ -923,10 +936,31 @@ export class Stage {
   dispose() {
     cancelAnimationFrame(this.raf);
     this.raf = 0;
+    clearTimeout(this.sleepT);
     this.io.disconnect();
     this.unbind();
+    this.disposeScene();
     R.stages.delete(this);
     if (!R.stages.size) release();
+  }
+  /** Free GPU/CPU resources created by this stage (not the cached model shared with other stages). */
+  private disposeScene() {
+    if (!this.scene) return;
+    this.clearZones();
+    this.scene.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (m.geometry && !this.shared.has(m.geometry)) m.geometry.dispose();
+      if (m.material)
+        materialsOf(m).forEach((mat) => {
+          if (this.shared.has(mat)) return;
+          const map = (mat as THREE.MeshBasicMaterial).map;
+          if (map && !planTexOwned(map)) map.dispose();
+          mat.dispose();
+        });
+    });
+    this.dropGpu();
+    this.scene.clear();
+    this.ready = false;
   }
   animating() {
     return this.moving || this.st.play;
@@ -1518,6 +1552,7 @@ export class Stage {
     this.composer = null;
   }
   dropGpu() {
+    this.composer?.dispose();
     this.composer = null;
     if (this.envRT) {
       this.envRT.dispose();
@@ -1535,8 +1570,9 @@ export class Stage {
       this.opts.onError?.('webgl');
       return;
     }
-    let dpr = Math.min(window.devicePixelRatio || 1, 1.75);
-    dpr = Math.min(dpr, Math.sqrt(3.2e6 / (cw * ch)));
+    const low = this.opts.quality === 'low';
+    let dpr = Math.min(window.devicePixelRatio || 1, low ? 1.25 : 1.75);
+    dpr = Math.min(dpr, Math.sqrt((low ? 1.6e6 : 3.2e6) / (cw * ch)));
     const w = Math.max(2, Math.round(cw * dpr));
     const h = Math.max(2, Math.round(ch * dpr));
     if (v.width !== w || v.height !== h) {
@@ -1557,22 +1593,29 @@ export class Stage {
     r.setPixelRatio(1);
     r.setSize(w, h, false);
     r.toneMappingExposure = this.exposure || 1;
-    if (!this.composer || this.composer.renderer !== r) {
-      const comp = new EffectComposer(r);
-      comp.addPass(new RenderPass(this.scene, this.cam));
-      this.bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.4, 0.32, 0.92);
-      comp.addPass(this.bloomPass);
-      comp.addPass(new OutputPass());
-      this.composer = comp;
-      this.compSize = [0, 0];
+    if (low) {
+      // modest devices: direct render, no bloom pass
+      r.setRenderTarget(null);
+      r.render(this.scene, this.cam);
+    } else {
+      if (!this.composer || this.composer.renderer !== r) {
+        this.composer?.dispose();
+        const comp = new EffectComposer(r);
+        comp.addPass(new RenderPass(this.scene, this.cam));
+        this.bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.4, 0.32, 0.92);
+        comp.addPass(this.bloomPass);
+        comp.addPass(new OutputPass());
+        this.composer = comp;
+        this.compSize = [0, 0];
+      }
+      if (this.compSize[0] !== w || this.compSize[1] !== h) {
+        this.composer.setPixelRatio(1);
+        this.composer.setSize(w, h);
+        this.compSize = [w, h];
+      }
+      this.bloomPass!.strength = this.bloom || 0.4;
+      this.composer.render();
     }
-    if (this.compSize[0] !== w || this.compSize[1] !== h) {
-      this.composer.setPixelRatio(1);
-      this.composer.setSize(w, h);
-      this.compSize = [w, h];
-    }
-    this.bloomPass!.strength = this.bloom || 0.4;
-    this.composer.render();
     this.ctx.drawImage(r.domElement, 0, 0, w, h);
     if (!this.drawn) {
       this.drawn = true;

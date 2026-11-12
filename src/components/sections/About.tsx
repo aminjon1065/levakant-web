@@ -1,7 +1,9 @@
 // Generated from levakant-source/src/main.html <!--s:about--> — hand-maintained from here on.
 import { useTranslations } from 'next-intl';
+import { Pic } from '@/components/Pic';
+import { DemoTag } from '@/components/DemoTag';
 
-export function About({ pxFrom }: { pxFrom: string }) {
+export function About({ pxFrom, demo }: { pxFrom: string; demo: boolean }) {
   const t = useTranslations('about');
   const v = { pxFrom };
   return (
@@ -101,7 +103,11 @@ export function About({ pxFrom }: { pxFrom: string }) {
             <figure className="ab-f rvi">
               {' '}
               <div className="af px">
-                <img src="/assets/corner.webp" alt={t('levakantResidenceCornerPerspecti')} loading="lazy" />
+                <Pic
+                  src="/assets/corner.webp"
+                  alt={t('levakantResidenceCornerPerspecti')}
+                  sizes="(max-width: 1100px) 92vw, 52vw"
+                />
               </div>{' '}
               <figcaption className="cap">
                 <b>{t('view')}</b>
@@ -120,15 +126,24 @@ export function About({ pxFrom }: { pxFrom: string }) {
               </div>{' '}
               <div>
                 <dt>{t('price')}</dt>
-                <dd>{t('fromPxfromSomoni', { pxFrom: v.pxFrom })}</dd>
+                <dd>
+                  {t('fromPxfromSomoni', { pxFrom: v.pxFrom })}
+                  <DemoTag on={demo} />
+                </dd>
               </div>{' '}
               <div>
                 <dt>{t('instalments')}</dt>
-                <dd>{t('noMarkUp30')}</dd>
+                <dd>
+                  {t('noMarkUp30')}
+                  <DemoTag on={demo} />
+                </dd>
               </div>{' '}
               <div>
                 <dt>{t('completion')}</dt>
-                <dd>{t('q42028')}</dd>
+                <dd>
+                  {t('q42028')}
+                  <DemoTag on={demo} />
+                </dd>
               </div>{' '}
               <div>
                 <dt>{t('developer')}</dt>

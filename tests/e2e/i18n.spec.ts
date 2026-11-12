@@ -38,6 +38,11 @@ async function texts(page: Page) {
 /** Walk through states whose strings only appear after interaction. */
 async function visitStates(page: Page, collect: () => Promise<void>) {
   await collect();
+  // text of every section (content-visibility skips unrendered ones in getComputedStyle)
+  await page.evaluate(() =>
+    document.querySelectorAll('section').forEach((s) => (s.style.contentVisibility = 'visible')),
+  );
+  await collect();
   const b = page.locator('#building');
   await b.locator('.fr button').nth(1).click(); // 9th floor
   await b.locator('.b3-ct .b3-ex').click(); // explode
@@ -65,6 +70,7 @@ async function visitStates(page: Page, collect: () => Promise<void>) {
   await collect();
   await page.keyboard.press('Escape');
   await page.locator('#contact .fm-f button').click(); // errors
+  await expect(page.locator('#f-name')).toBeFocused(); // the form moves focus to the first invalid field
   await collect();
   await page.locator('#f-name').fill('Test');
   await page.locator('#f-tel').fill('+992 90 000 00 00');
@@ -78,6 +84,10 @@ for (const [locale, bad] of [
   ['tg', RU_ONLY],
 ] as const) {
   test(`no Russian left on /${locale} @all`, async ({ page }) => {
+    // mocked enquiry endpoint, to reach the "enquiry received" state
+    await page.route('**/api/leads', (route) =>
+      route.fulfill({ json: route.request().method() === 'GET' ? { enabled: true } : { ok: true } }),
+    );
     await page.goto(`/${locale}`);
     await page.waitForLoadState('networkidle');
     const found = new Set<string>();

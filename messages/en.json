@@ -3,10 +3,19 @@
     "title": "LEVAKANT RESIDENCE — residential complex in Levakant",
     "description": "LEVAKANT RESIDENCE — a new residential building on Ismoili Somoni Street in Levakant: 9 floors plus an attic level, apartments from 35 to 134 m², a 3D model of the building, layouts, prices and instalments."
   },
+  "common": {
+    "demo": "demo",
+    "demoTitle": "Mock-up example — not a current offer",
+    "g3Loading": "Loading the 3D model…",
+    "g3Error": "The 3D model did not load — showing the simplified scheme.",
+    "g3OffWebgl": "This browser does not support WebGL 2 — showing the simplified scheme.",
+    "g3OffPref": "Reduced motion is on — showing the simplified scheme.",
+    "g3OffDevice": "To save memory and data, the simplified scheme is shown.",
+    "g3Show": "Show the 3D model"
+  },
   "nav": {
     "skipToContent": "Skip to content",
     "mainNavigation": "Main navigation",
-    "levakantResidenceBackTo": "LEVAKANT RESIDENCE — back to top",
     "about": "About",
     "prices": "Prices",
     "apartments": "Apartments",
@@ -18,7 +27,8 @@
     "pricesInstalments": "Prices & instalments",
     "menu": "Menu",
     "buildingIn3d": "Building in 3D",
-    "ismoiliSomoniStLevakant": "Ismoili Somoni St, Levakant"
+    "ismoiliSomoniStLevakant": "Ismoili Somoni St, Levakant",
+    "toTop": "back to top"
   },
   "hero": {
     "residentialComplexLevakant": "Residential complex · Levakant",
@@ -121,13 +131,18 @@
     "discount": "Discount",
     "rest": "Balance in instalments",
     "restFull": "{v} somoni",
-    "restTerm": "{v} somoni · {m} mo."
+    "restTerm": "{v} somoni · {m} mo.",
+    "demoNote": "Prices, discounts and terms on this page are demo values for the mock-up. The sales team gives the real terms, and the contract fixes them.",
+    "getQuote": "Get a quote",
+    "getQuoteWa": "Get a quote on WhatsApp",
+    "waCalc": "Hello! Please send me a quote: {layout}, {fl}, {down}% down, {term} months.",
+    "waCalcFull": "Hello! Please send me a quote: {layout}, {fl}, paying in full."
   },
   "building": {
     "buildingIn3d": "Building in 3D",
     "exploreTheBuilding": "Explore the building",
     "in3d": "in 3D",
-    "theArchicadModelOf": "The Archicad model of this building in real time: turn it, split it by floor, open a floor in section and step inside an apartment.",
+    "theArchicadModelOf": "The Archicad model of this building: turn it, split it by floor, open a floor in section and pick an apartment.",
     "pathBuildingFloorApartment": "Path: building, floor, apartment, plan or 3D, enquiry",
     "chooseAFloor": "Choose a floor",
     "lowerLevelShow": "Lower level — show",
@@ -287,7 +302,6 @@
     "somoni": "somoni",
     "smoSm2": "in instalments from {sMo} somoni a month · {sM2} somoni per m²",
     "getPriceInstalments": "Get price & instalments",
-    "cardAria": "{title}, {area} m², {fl}",
     "phShort": "A",
     "floorPh": "Attic level",
     "floorN": "floor {n}",
@@ -370,7 +384,11 @@
     "contract": "Contract",
     "byPowerOfAttorney": "By power of attorney to a relative in Tajikistan, at a notary.",
     "payment": "Payment",
-    "byTransferToThe": "By transfer to the developer’s account — in full or on the instalment schedule."
+    "byTransferToThe": "By transfer to the developer’s account — in full or on the instalment schedule.",
+    "pending": "Pending",
+    "reservationText": "The apartment is held for you while the paperwork is done.",
+    "photoReports": "Site photos every month",
+    "waVideo": "Hello! I would like to book a video call about LEVAKANT RESIDENCE."
   },
   "lifestyle": {
     "surroundings": "Surroundings",
@@ -445,8 +463,8 @@
     "inDetail": "in detail",
     "scrollBack": "Scroll back",
     "scrollForward": "Scroll forward",
-    "openAria": "{t} — full screen",
-    "count": "{n} images"
+    "count": "{n} images",
+    "openHint": "full screen"
   },
   "arch": {
     "architecture": "Architecture",
@@ -561,10 +579,19 @@
     "sendLabel": "Send enquiry",
     "nameErr": "Enter your name",
     "telErr": "Enter the full phone number",
-    "notSpecified": "not specified"
+    "notSpecified": "not specified",
+    "waHello": "Hello! I am interested in LEVAKANT RESIDENCE.",
+    "callUs": "Call",
+    "contactsPending": "Sales contacts will be published once the developer confirms them.",
+    "calcPick": "Quote: {layout}, {fl}, {down}% down, {term} mo.",
+    "formOff": "Sending enquiries from the site is not connected yet — the form data goes nowhere and stays only on your screen.",
+    "formOffAlt": "Contact the sales team directly:",
+    "errRate": "Too many enquiries in a row. Try again in a few minutes — your details are still in the form.",
+    "errFailed": "The enquiry could not be sent. Check your connection and try again — your details are still in the form.",
+    "requiredOnly": "Required fields.",
+    "calcPickFull": "Quote: {layout}, {fl}, paying in full"
   },
   "footer": {
-    "levakantResidenceBackTo": "LEVAKANT RESIDENCE — back to top",
     "architectureOfBetterLiving": "Architecture of better living.",
     "navigation": "Navigation",
     "about": "About",
@@ -582,7 +609,9 @@
     "siteLanguage": "Site language",
     "conceptDesignArkhitekturaI": "Concept design — “Arkhitektura i Dizain” LLC, Dushanbe",
     "legal": "© 2026 LEVAKANT RESIDENCE. Developer — Akai Mu’min. Renderings and layouts are for information only and are not a public offer. Areas and layouts may be refined during design.",
-    "demoNotice": "Prices, payment terms, dates and contacts on this page are examples for the mock-up."
+    "demoNotice": "Prices, payment terms and dates on this page are examples for the mock-up.",
+    "language": "Language",
+    "toTop": "back to top"
   },
   "mcta": {
     "prices": "Prices",

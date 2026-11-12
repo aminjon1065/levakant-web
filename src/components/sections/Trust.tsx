@@ -1,9 +1,24 @@
 // Generated from levakant-source/src/main.html <!--s:trust--> — hand-maintained from here on.
 import { useTranslations } from 'next-intl';
 import { ActionLink } from '@/components/ActionLink';
+import { DemoTag } from '@/components/DemoTag';
+import type { PublicConfig } from '@/lib/config';
+import { waHref } from '@/lib/links';
 
-export function Trust() {
+/** Document status: a real PDF link when the owner published the file, otherwise an honest "pending". */
+function DocStatus({ url, label }: { url: string | null; label: string }) {
+  return url ? (
+    <a className="st" href={url} target="_blank" rel="noopener noreferrer">
+      {'PDF'}
+    </a>
+  ) : (
+    <span className="st">{label}</span>
+  );
+}
+
+export function Trust({ demo, cfg }: { demo: boolean; cfg: PublicConfig }) {
   const t = useTranslations('trust');
+  const waVideo = waHref(cfg, t('waVideo'));
   return (
     <>
       {' '}
@@ -36,10 +51,12 @@ export function Trust() {
               <div className="tr-pt">
                 {' '}
                 <span className="lb">{t('developer')}</span> <b className="sf">{t('akaiMuMin')}</b>{' '}
-                <blockquote className="tr-q">
-                  <p>{t('weAreBuildingA')}</p>
-                  <span>{t('draftMessageToBe')}</span>
-                </blockquote>{' '}
+                {/* the address is a draft until the developer approves it — not published before that */}
+                {cfg.developerQuoteApproved && (
+                  <blockquote className="tr-q">
+                    <p>{t('weAreBuildingA')}</p>
+                  </blockquote>
+                )}{' '}
                 <dl className="led">
                   {' '}
                   <div>
@@ -59,35 +76,42 @@ export function Trust() {
                     <b>{t('conceptDesign')}</b>
                     <span>{t('arkhitekturaIDizainLlc')}</span>
                   </div>
-                  <span className="st ok">{t('ready')}</span>
+                  {cfg.docs.sketch ? (
+                    <DocStatus url={cfg.docs.sketch} label="" />
+                  ) : (
+                    <span className="st ok">{t('ready')}</span>
+                  )}
                 </li>{' '}
                 <li>
                   <div>
                     <b>{t('buildingPermit')}</b>
                     <span>{t('confirmsTheConstructionIs')}</span>
                   </div>
-                  <span className="st">{'PDF'}</span>
+                  <DocStatus url={cfg.docs.permit} label={t('pending')} />
                 </li>{' '}
                 <li>
                   <div>
                     <b>{t('stateDesignReview')}</b>
                     <span>{t('theDesignIsChecked')}</span>
                   </div>
-                  <span className="st">{'PDF'}</span>
+                  <DocStatus url={cfg.docs.expertise} label={t('pending')} />
                 </li>{' '}
                 <li>
                   <div>
                     <b>{t('landTitle')}</b>
                     <span>{t('theDeveloperSRight')}</span>
                   </div>
-                  <span className="st">{'PDF'}</span>
+                  <DocStatus url={cfg.docs.land} label={t('pending')} />
                 </li>{' '}
                 <li>
                   <div>
                     <b>{t('sampleSaleContract')}</b>
-                    <span>{t('contractCertifiedByA')}</span>
+                    <span>
+                      {t('contractCertifiedByA')}
+                      <DemoTag on={demo} />
+                    </span>
                   </div>
-                  <span className="st">{'PDF'}</span>
+                  <DocStatus url={cfg.docs.contract} label={t('pending')} />
                 </li>{' '}
               </ul>{' '}
               <p className="tr-x">{t('adviceForAnyBuyer')}</p>{' '}
@@ -97,7 +121,12 @@ export function Trust() {
             {' '}
             <div className="tl-h">
               <span className="lb">{t('constructionProgress')}</span>
-              <span className="tl-s">{t('monthlySitePhotoReport')}</span>
+              <DemoTag on={demo} />
+              {cfg.constructionChannelUrl && (
+                <a className="tl-s" href={cfg.constructionChannelUrl} target="_blank" rel="noopener noreferrer">
+                  {t('photoReports')}
+                </a>
+              )}
             </div>{' '}
             <ol className="tl-l">
               {' '}
@@ -137,13 +166,26 @@ export function Trust() {
             {' '}
             <div className="abr-h">
               {' '}
-              <h3 className="h3">{t('buyingFromRussiaOr')}</h3> <p className="mt">{t('youCanChooseAnd')}</p>{' '}
-              <ActionLink action="askVideo" className="btn b-gold" href="#contact">
-                {t('bookAVideoCall')}{' '}
-                <svg width="18" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true">
-                  <path d="M0 5h16M12 1l4 4-4 4" stroke="currentColor" strokeWidth="1.3"></path>
-                </svg>
-              </ActionLink>{' '}
+              <h3 className="h3">{t('buyingFromRussiaOr')}</h3>{' '}
+              <p className="mt">
+                {t('youCanChooseAnd')}
+                <DemoTag on={demo} />
+              </p>{' '}
+              {waVideo ? (
+                <a className="btn b-gold" href={waVideo} target="_blank" rel="noopener noreferrer">
+                  {t('bookAVideoCall')}{' '}
+                  <svg width="18" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true">
+                    <path d="M0 5h16M12 1l4 4-4 4" stroke="currentColor" strokeWidth="1.3"></path>
+                  </svg>
+                </a>
+              ) : (
+                <ActionLink action="askVideo" className="btn b-gold" href="#contact">
+                  {t('bookAVideoCall')}{' '}
+                  <svg width="18" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true">
+                    <path d="M0 5h16M12 1l4 4-4 4" stroke="currentColor" strokeWidth="1.3"></path>
+                  </svg>
+                </ActionLink>
+              )}{' '}
             </div>{' '}
             <ol className="abr-s">
               {' '}
@@ -158,7 +200,7 @@ export function Trust() {
                 <b>{'2'}</b>
                 <div>
                   <h4>{t('reservation')}</h4>
-                  <p>{t('theApartmentIsHeld')}</p>
+                  <p>{t('reservationText')}</p>
                 </div>
               </li>{' '}
               <li>

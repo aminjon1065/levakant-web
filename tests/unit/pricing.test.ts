@@ -38,7 +38,9 @@ describe('demo price model', () => {
     const c = calc(pricing, d.L.b6329.total, 'typ', 30, 24);
     expect(n(c.price)).toBe('348 095');
     expect(n(c.downSum)).toBe('104 429');
-    expect(n(c.rest)).toBe('243 667');
+    // the mockup showed 243 667 (104 429 + 243 667 = 348 096): parts are now rounded to add up
+    expect(n(c.rest)).toBe('243 666');
+    expect(c.downSum + c.rest).toBe(c.price);
     expect(n(c.monthly)).toBe('10 153');
     expect(c.full).toBe(false);
   });
@@ -49,10 +51,23 @@ describe('demo price model', () => {
     expect(n(c.price)).toBe('828 072');
     expect(n(c.monthly)).toBe(n(828072 * 0.95));
     expect(n(c.discount)).toBe(n(828072 * 0.05));
+    expect(c.downSum + c.discount).toBe(c.price);
+  });
+
+  it.each([30, 35, 50, 95, 100])('down %i %%: parts always add up to the price, for every layout and term', (down) => {
+    for (const id of d.order)
+      for (const fl of d.L[id].fk)
+        for (const term of pricing.months) {
+          const c = calc(pricing, d.L[id].total, fl, down, term);
+          expect(Number.isInteger(c.price) && Number.isInteger(c.downSum)).toBe(true);
+          expect(c.downSum + (c.full ? c.discount : c.rest)).toBe(c.price);
+          if (!c.full) expect(Math.abs(c.monthly * term - c.rest)).toBeLessThan(1e-6);
+        }
   });
 
   it('50 % down over 12 months', () => {
     const c = calc(pricing, d.L.b8029.total, 'typ', 50, 12);
-    expect(c.monthly).toBeCloseTo(441595 / 2 / 12, 6);
+    expect(c.downSum).toBe(220798);
+    expect(c.monthly).toBeCloseTo((441595 - 220798) / 12, 6);
   });
 });

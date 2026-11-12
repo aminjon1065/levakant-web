@@ -1,13 +1,16 @@
 'use client';
 
 import { createContext, useContext, type ReactNode } from 'react';
+import type { PublicConfig } from '@/lib/config';
 import type { Pricing, SiteData } from '@/lib/types';
-import type { SiteInfo } from '@/content/site';
 
 interface Ctx {
   d: SiteData;
   pricing: Pricing;
-  site: SiteInfo;
+  /** owner-provided contacts, links and documents (only what is configured) */
+  cfg: PublicConfig;
+  /** prices, payment terms and dates are the mockup's examples */
+  demo: boolean;
   locale: string;
 }
 

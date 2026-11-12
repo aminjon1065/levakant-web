@@ -3,6 +3,7 @@
 
 import { Fragment, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { Stage3DStatus } from '@/components/Stage3DStatus';
 import { useExplorerVals } from '@/lib/explorer';
 import { useDragRotate } from '@/lib/drag';
 import { useStage } from '@/engine/useStage';
@@ -16,7 +17,7 @@ export function Building() {
   return (
     <>
       {' '}
-      <section className="sec dk p1 b3s" id="building">
+      <section className="sec dk p1 b3s" id="building" data-lazybg="">
         {' '}
         <div className="wrap">
           {' '}
@@ -108,6 +109,7 @@ export function Building() {
                   </svg>
                   {t('dragToRotate')}
                 </p>{' '}
+                <Stage3DStatus which="b3St" />
               </div>{' '}
               <div className="b3-ct">
                 {' '}
@@ -276,7 +278,7 @@ function Level({ l, withZones, v }: { l: ExplorerVals['LV'][number]; withZones: 
         <div className="xt">
           {l.sel && (
             <>
-              <img className="sw" src={v.planImg} alt={v.planAlt} />
+              <img className="sw" src={v.planImg} alt={v.planAlt} loading="lazy" decoding="async" />
               {withZones && (
                 <>
                   {' '}

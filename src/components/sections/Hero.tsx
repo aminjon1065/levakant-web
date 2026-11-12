@@ -1,9 +1,10 @@
 // Generated from levakant-source/src/main.html <!--s:hero--> — hand-maintained from here on.
 import { useTranslations } from 'next-intl';
+import { DemoTag } from '@/components/DemoTag';
 import { HeroParallax } from '@/components/HeroParallax';
 
 /** First screen. Scroll animation is pure CSS (animation-timeline); pointer parallax is a client island. */
-export function Hero({ pxFrom }: { pxFrom: string }) {
+export function Hero({ pxFrom, demo }: { pxFrom: string; demo: boolean }) {
   const t = useTranslations('hero');
   const v = { pxFrom };
   return (
@@ -76,8 +77,19 @@ export function Hero({ pxFrom }: { pxFrom: string }) {
             {' '}
             <div className="wrap">
               {' '}
-              <span>{t('apartments35134M')}</span> <span>{t('fromPxfromSomoni', { pxFrom: v.pxFrom })}</span>{' '}
-              <span>{t('n0InstalmentsUpTo')}</span> <span>{t('completionQ42028')}</span>{' '}
+              <span>{t('apartments35134M')}</span>{' '}
+              <span>
+                {t('fromPxfromSomoni', { pxFrom: v.pxFrom })}
+                <DemoTag on={demo} />
+              </span>{' '}
+              <span>
+                {t('n0InstalmentsUpTo')}
+                <DemoTag on={demo} />
+              </span>{' '}
+              <span>
+                {t('completionQ42028')}
+                <DemoTag on={demo} />
+              </span>{' '}
               <a className="h-scroll" href="#about">
                 <i></i>
                 {t('scroll')}

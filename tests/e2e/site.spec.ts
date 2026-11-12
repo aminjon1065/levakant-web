@@ -79,10 +79,16 @@ test.describe('prices and calculator', () => {
     for (const b of await page.locator('#price .chips').nth(1).locator('button').all()) await expect(b).toBeDisabled();
   });
 
-  test('"Получить расчёт в WhatsApp" adds the layout to the form and ticks WhatsApp', async ({ page }) => {
+  test('"Получить расчёт" (no WhatsApp configured) attaches the calculation to the form', async ({ page }) => {
     await go(page);
-    await page.locator('#price .pc a.btn').click();
-    await expect(page.locator('#contact .pk-i')).toHaveCount(1);
+    const cta = page.locator('#price .pc a.btn');
+    await expect(cta).toHaveText(/^Получить расчёт\s*$/);
+    await expect(cta).toHaveAttribute('href', '#contact');
+    await cta.click();
+    await expect(page.locator('#contact .pk-i')).toHaveCount(2);
+    await expect(page.locator('#contact .pk-i').nth(1)).toContainText(
+      'Расчёт: 2-комнатная 63,29 м², Этажи 2–8, взнос 30%, 24 мес.',
+    );
     await expect(page.locator('#m2')).toBeChecked();
     await expect(page.locator('#w1')).toBeChecked();
   });
@@ -194,7 +200,28 @@ test.describe('gallery', () => {
 });
 
 test.describe('contact form @all', () => {
-  test('errors, then success', async ({ page }) => {
+  test('without a delivery channel: honest notice, no fake success, nothing sent', async ({ page }) => {
+    let posted = false;
+    page.on('request', (r) => {
+      if (r.url().endsWith('/api/leads') && r.method() === 'POST') posted = true;
+    });
+    await go(page);
+    const f = page.locator('#contact');
+    await expect(f.locator('#fm-st')).toContainText('Отправка заявок с сайта пока не подключена');
+    await f.locator('#f-name').fill('Анвар');
+    await expect(f.getByRole('button', { name: /Оставить заявку/ })).toBeDisabled();
+    await expect(f.locator('#f-name')).toHaveValue('Анвар');
+    await expect(f.getByRole('status')).toHaveCount(0);
+    expect(posted).toBe(false);
+  });
+
+  test('with a channel: validation, then success only after the server confirms', async ({ page }) => {
+    let body: Record<string, unknown> | null = null;
+    await page.route('**/api/leads', async (route) => {
+      if (route.request().method() === 'GET') return route.fulfill({ json: { enabled: true } });
+      body = route.request().postDataJSON();
+      return route.fulfill({ json: { ok: true } });
+    });
     await go(page);
     const f = page.locator('#contact');
     await f.getByRole('button', { name: /Оставить заявку/ }).click();
@@ -204,8 +231,62 @@ test.describe('contact form @all', () => {
     await f.locator('#f-tel').fill('+992 90 123 45 67');
     await f.locator('label[for=m2]').click();
     await f.getByRole('button', { name: /Оставить заявку/ }).click();
-    await expect(f.getByRole('status')).toContainText('Анвар', { timeout: 5000 });
+    await expect(f.getByRole('status')).toContainText('Анвар', { timeout: 10_000 });
     await expect(f.getByRole('status')).toContainText('WhatsApp');
+    expect(body).toMatchObject({
+      name: 'Анвар',
+      phone: '+992 90 123 45 67',
+      method: 'whatsapp',
+      locale: 'ru',
+      company: '',
+    });
+  });
+
+  test('delivery failure: error message, typed data kept', async ({ page }) => {
+    await page.route('**/api/leads', (route) =>
+      route.request().method() === 'GET'
+        ? route.fulfill({ json: { enabled: true } })
+        : route.fulfill({ status: 502, json: { error: 'delivery_failed' } }),
+    );
+    await go(page);
+    const f = page.locator('#contact');
+    await f.locator('#f-name').fill('Анвар');
+    await f.locator('#f-tel').fill('+992 90 123 45 67');
+    await f.getByRole('button', { name: /Оставить заявку/ }).click();
+    await expect(f.getByRole('alert')).toContainText('Не удалось отправить заявку');
+    await expect(f.locator('#f-name')).toHaveValue('Анвар');
+    await expect(f.getByRole('status')).toHaveCount(0);
+  });
+});
+
+test.describe('launch content rules @all', () => {
+  test('no placeholder contacts, links or documents; demo figures are marked', async ({ page }) => {
+    await go(page);
+    const html = await page.content();
+    expect(html).not.toContain('000-00-00');
+    expect(html).not.toContain('levakant_residence');
+    await expect(page.locator('#location .mk-l')).toHaveCount(0); // map links only when configured
+    await expect(page.locator('.waf, .mcta .wa')).toHaveCount(0); // WhatsApp only with a verified number
+    await expect(page.locator('#trust .dc .st')).toHaveText([
+      'Есть',
+      'Ожидается',
+      'Ожидается',
+      'Ожидается',
+      'Ожидается',
+    ]);
+    await expect(page.locator('#trust .tr-q')).toHaveCount(0); // draft address of the developer
+    expect(await page.locator('.dm').count()).toBeGreaterThan(10);
+    await expect(page.locator('#price .po-x')).toContainText('демонстрационные');
+  });
+
+  test('every in-page link has a target', async ({ page }) => {
+    await go(page);
+    const missing = await page.evaluate(() =>
+      [...document.querySelectorAll<HTMLAnchorElement>('a[href^="#"]')]
+        .map((a) => a.getAttribute('href')!)
+        .filter((h) => h.length > 1 && !document.getElementById(h.slice(1))),
+    );
+    expect(missing).toEqual([]);
   });
 });
 

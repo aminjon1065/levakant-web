@@ -24,23 +24,42 @@ const sunState = (s: SiteState): Partial<StageState> => ({
 
 /**
  * Mounts a live 3D stage on `canvas` when it comes within ~1.5 screens of the viewport.
- * The engine (three.js + model) is a separate lazily loaded chunk; until its first frame
- * the section shows the static scheme from the mockup.
+ * The engine (three.js + model) is a separate lazily loaded chunk. Until its first frame —
+ * and whenever 3D is off or fails — the section shows the static scheme from the mockup;
+ * the status (`b3St` / `sunSt`) drives an honest note in the UI.
  */
 export function useStage(canvas: RefObject<HTMLCanvasElement | null>, mode: 'explore' | 'sun') {
   const { d } = useSiteData();
+  const force = useSite((s) => s.force3d);
   useEffect(() => {
     const cv = canvas.current;
-    if (!cv || !can3D()) return;
+    const stKey = mode === 'explore' ? 'b3St' : 'sunSt';
+    const glKey = mode === 'explore' ? 'glB3' : 'glSun';
+    const status = (v: string) => set({ [stKey]: v } as Partial<SiteState>);
+    if (!cv) return;
+    const cap = can3D();
+    if (!cap.ok) {
+      status('off-' + cap.reason);
+      return;
+    }
     let stage: Stage | null = null;
     let unsub = () => {};
     let dead = false;
+    const fail = () => {
+      if (dead) return;
+      unsub();
+      stage?.dispose();
+      stage = null;
+      set({ [glKey]: false, [stKey]: 'error' } as Partial<SiteState>);
+    };
     const start = async () => {
+      status('loading');
       const { createStage } = await import('./engine');
       if (dead) return;
-      const base: Pick<StageOptions, 'model' | 'onError'> = {
+      const base: Pick<StageOptions, 'model' | 'onError' | 'quality'> = {
         model: d.gl.model,
-        onError: (e) => console.warn('[3d]', e),
+        quality: cap.quality,
+        onError: fail,
       };
       if (mode === 'explore') {
         stage = createStage(cv, {
@@ -49,7 +68,7 @@ export function useStage(canvas: RefObject<HTMLCanvasElement | null>, mode: 'exp
           plans: { typ: d.P.typ, f9: d.P.f9, ph: d.P.ph },
           planImgs: d.gl.planImgs,
           rooms: d.gl.rooms,
-          onFirstFrame: () => set({ glB3: true }),
+          onFirstFrame: () => set({ glB3: true, b3St: 'ready' }),
           // click on a floor of the model (mockup `pick3`)
           onFloor: (k) => {
             const s = get();
@@ -71,7 +90,7 @@ export function useStage(canvas: RefObject<HTMLCanvasElement | null>, mode: 'exp
           ...base,
           mode,
           dayRange: (k) => [d.sun[k].riseM, d.sun[k].setM],
-          onFirstFrame: () => set({ glSun: true }),
+          onFirstFrame: () => set({ glSun: true, sunSt: 'ready' }),
           onTime: (m) => set({ sunM: m }),
         });
         stage.set(sunState(get()));
@@ -82,18 +101,19 @@ export function useStage(canvas: RefObject<HTMLCanvasElement | null>, mode: 'exp
       (es) => {
         if (es.some((e) => e.isIntersecting)) {
           io.disconnect();
-          start().catch((e) => console.warn('[3d] engine failed to load', e));
+          start().catch(fail);
         }
       },
       { rootMargin: '150% 0px' },
     );
-    io.observe(cv);
+    // observe the section box: inside a not-yet-rendered (content-visibility) section the canvas has no size
+    io.observe(cv.closest('section') ?? cv);
     return () => {
       dead = true;
       io.disconnect();
       unsub();
       stage?.dispose();
-      set(mode === 'explore' ? { glB3: false } : { glSun: false });
+      set({ [glKey]: false, [stKey]: '' } as Partial<SiteState>);
     };
-  }, [canvas, mode, d]);
+  }, [canvas, mode, d, force]);
 }

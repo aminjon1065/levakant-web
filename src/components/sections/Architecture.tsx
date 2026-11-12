@@ -1,5 +1,6 @@
 // Generated from levakant-source/src/main.html <!--s:arch--> — hand-maintained from here on.
 import { useTranslations } from 'next-intl';
+import { Pic } from '@/components/Pic';
 
 export function Architecture() {
   const t = useTranslations('arch');
@@ -56,7 +57,7 @@ export function Architecture() {
               </li>{' '}
             </ol>{' '}
             <div className="af ar-e">
-              <img src="/assets/facade.webp" alt={t('mainFaAdeOf')} loading="lazy" />
+              <Pic src="/assets/facade.webp" alt={t('mainFaAdeOf')} sizes="(max-width: 1100px) 92vw, 60vw" />
             </div>{' '}
             <p className="cap ar-cap">
               <b>{t('faAde')}</b>
@@ -67,7 +68,11 @@ export function Architecture() {
             {' '}
             <figure className="rv">
               <div className="af px">
-                <img src="/assets/d-crown.webp" alt={t('buildingCornerCorniceUpper')} loading="lazy" />
+                <Pic
+                  src="/assets/d-crown.webp"
+                  alt={t('buildingCornerCorniceUpper')}
+                  sizes="(max-width: 760px) 65vw, 30vw"
+                />
               </div>
               <figcaption className="cap">
                 <b>{'I'}</b>
@@ -76,7 +81,7 @@ export function Architecture() {
             </figure>{' '}
             <figure className="rv">
               <div className="af px">
-                <img src="/assets/d-rhythm.webp" alt={t('faAdeDetailVertical')} loading="lazy" />
+                <Pic src="/assets/d-rhythm.webp" alt={t('faAdeDetailVertical')} sizes="(max-width: 760px) 65vw, 30vw" />
               </div>
               <figcaption className="cap">
                 <b>{'II'}</b>
@@ -85,7 +90,11 @@ export function Architecture() {
             </figure>{' '}
             <figure className="rv">
               <div className="af px">
-                <img src="/assets/d-base.webp" alt={t('groundFloorShopfrontsAnd')} loading="lazy" />
+                <Pic
+                  src="/assets/d-base.webp"
+                  alt={t('groundFloorShopfrontsAnd')}
+                  sizes="(max-width: 760px) 65vw, 30vw"
+                />
               </div>
               <figcaption className="cap">
                 <b>{'III'}</b>
@@ -97,7 +106,7 @@ export function Architecture() {
             {' '}
             <figure className="rvi">
               <div className="af px">
-                <img src="/assets/rear.webp" alt={t('courtyardFaAdeWith')} loading="lazy" />
+                <Pic src="/assets/rear.webp" alt={t('courtyardFaAdeWith')} sizes="(max-width: 1100px) 92vw, 60vw" />
               </div>
             </figure>{' '}
             <div className="rv">
@@ -106,7 +115,11 @@ export function Architecture() {
               <p className="mt">{t('courtyardSideApartmentsOn')}</p>{' '}
               <figure>
                 <div className="af">
-                  <img src="/assets/d-balcony.webp" alt={t('courtyardSideBalconies')} loading="lazy" />
+                  <Pic
+                    src="/assets/d-balcony.webp"
+                    alt={t('courtyardSideBalconies')}
+                    sizes="(max-width: 1100px) 92vw, 30vw"
+                  />
                 </div>
                 <figcaption className="cap">
                   <b>{'IV'}</b>

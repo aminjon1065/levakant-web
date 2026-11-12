@@ -1,17 +1,39 @@
 // Generated from levakant-source/src/main.html <!--s:contact--> — hand-maintained from here on.
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useShallow } from 'zustand/react/shallow';
 import { useSiteData } from '@/components/SiteProvider';
 import { focusLater } from '@/lib/actions';
-import { favList, set, tf, up, useSite } from '@/lib/store';
+import { leadFieldErrors } from '@/lib/leadRules';
+import type { Lead } from '@/lib/leadSchema';
+import { waHref } from '@/lib/links';
+import { favList, get, set, tf, up, useSite } from '@/lib/store';
 
-/** Enquiry form (mockup renderVals: "contact" + send). Not connected to a backend yet. */
+const METHODS = { m1: 'call', m2: 'whatsapp', m3: 'telegram' } as const;
+const WANTS = { w1: 'prices', w2: 'catalog', w3: 'viewing', w4: 'video' } as const;
+const FLN = { typ: 'flTyp', f9: 'flF9', ph: 'flPh' } as const;
+
+/** UTM tags of the landing URL, kept for the session and attached to the enquiry. */
+function utm(): Record<string, string> {
+  try {
+    const q = new URLSearchParams(window.location.search);
+    const found = Object.fromEntries(
+      [...q].filter(([k]) => /^utm_[a-z]+$/.test(k)).map(([k, v]) => [k, v.slice(0, 120)]),
+    );
+    if (Object.keys(found).length) sessionStorage.setItem('lv-utm', JSON.stringify(found));
+    return Object.keys(found).length ? found : JSON.parse(sessionStorage.getItem('lv-utm') || '{}');
+  } catch {
+    return {};
+  }
+}
+
+/** Enquiry form (mockup renderVals: "contact"). Success is shown only after the server confirms delivery. */
 function useContactVals() {
   const t = useTranslations('contact');
-  const { d } = useSiteData();
+  const tp = useTranslations('price');
+  const { d, locale } = useSiteData();
   const s = useSite(
     useShallow((x) => ({
       err: x.err,
@@ -22,36 +44,97 @@ function useContactVals() {
       sMethod: x.sMethod,
       fav: x.fav,
       favCom: x.favCom,
+      calc: x.calc,
+      sendErr: x.sendErr,
+      leadsOn: x.leadsOn,
     })),
   );
+  useEffect(() => {
+    utm();
+    let live = true;
+    fetch('/api/leads', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : { enabled: false }))
+      .then((j: { enabled?: boolean }) => live && set({ leadsOn: !!j.enabled }))
+      .catch(() => live && set({ leadsOn: false }));
+    return () => {
+      live = false;
+    };
+  }, []);
   const L = d.L;
-  const favs = favList(s.fav);
-  const errs = s.err ? s.err.split('|') : [];
-  const picks = favs
-    .filter((id) => L[id])
-    .map((id) => ({
-      label: L[id].title + ' · ' + t('areaM2', { a: L[id].as }),
-      aria: t('removeAria', { what: L[id].title + ' ' + t('areaM2', { a: L[id].as }) }),
-      rm: up({ fav: favs.filter((x) => x !== id).join('|') }),
-    }));
+  const favs = favList(s.fav).filter((id) => L[id]);
+  const picks = favs.map((id) => ({
+    label: L[id].title + ' · ' + t('areaM2', { a: L[id].as }),
+    aria: t('removeAria', { what: L[id].title + ' ' + t('areaM2', { a: L[id].as }) }),
+    rm: up({ fav: favs.filter((x) => x !== id).join('|') }),
+  }));
+  if (s.calc && L[s.calc.layout]) {
+    const c = s.calc;
+    const layout = L[c.layout].title + ' ' + t('areaM2', { a: L[c.layout].as });
+    const what =
+      c.down >= 100
+        ? t('calcPickFull', { layout, fl: tp(FLN[c.floors]) })
+        : t('calcPick', { layout, fl: tp(FLN[c.floors]), down: c.down, term: c.term });
+    picks.push({ label: what, aria: t('removeAria', { what }), rm: up({ calc: null }) });
+  }
   if (s.favCom) picks.push({ label: t('commercialSpace'), aria: t('removeCommercial'), rm: up({ favCom: false }) });
-  const send = () => {
-    const g = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value.trim() ?? '';
-    const name = g('f-name');
-    const tel = g('f-tel');
-    const e: string[] = [];
-    if (name.length < 2) e.push('name');
-    if (tel.replace(/\D/g, '').length < 7) e.push('tel');
+  const errs = s.err ? s.err.split('|') : [];
+  const send = async () => {
+    const val = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value.trim() ?? '';
+    const name = val('f-name');
+    const tel = val('f-tel');
+    const e = leadFieldErrors(name, tel);
     if (e.length) {
-      set({ err: e.join('|') });
+      set({ err: e.join('|'), sendErr: '' });
       focusLater(e[0] === 'name' ? 'f-name' : 'f-tel');
       return;
     }
     const m = document.querySelector<HTMLInputElement>('input[name="m"]:checked');
     const ml = m ? document.querySelector(`label[for="${m.id}"]`) : null;
-    set({ err: '', sending: true, sName: name, sTel: tel, sMethod: ml?.textContent ?? t('notSelected') });
-    // TODO(stage 7): POST /api/leads — today the form only shows the success state, like the mockup.
-    setTimeout(() => set({ sending: false, sent: true }), 900);
+    const wants = [...document.querySelectorAll<HTMLInputElement>('input[name="w"]:checked')]
+      .map((x) => WANTS[x.id as keyof typeof WANTS])
+      .filter(Boolean);
+    const sel = document.getElementById('f-apt') as HTMLSelectElement | null;
+    const x = get();
+    const lead: Lead = {
+      name,
+      phone: tel,
+      method: m ? (METHODS[m.id as keyof typeof METHODS] ?? null) : null,
+      wants,
+      interest: sel && sel.selectedIndex > 0 ? sel.options[sel.selectedIndex].text : null,
+      message: val('f-msg'),
+      layouts: favList(x.fav).filter((id) => L[id]),
+      commercial: x.favCom,
+      calc: x.calc,
+      locale: locale as Lead['locale'],
+      page: window.location.origin + window.location.pathname,
+      utm: utm(),
+      company: val('f-company'),
+    };
+    set({ err: '', sendErr: '', sending: true });
+    try {
+      const r = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(lead),
+      });
+      if (r.ok) {
+        set({ sending: false, sent: true, sName: name, sTel: tel, sMethod: ml?.textContent ?? t('notSelected') });
+        return;
+      }
+      const j = (await r.json().catch(() => ({}))) as { error?: string; fields?: string[] };
+      if (r.status === 400 && j.fields?.some((f) => f === 'name' || f === 'phone')) {
+        const fe = [j.fields.includes('name') && 'name', j.fields.includes('phone') && 'tel'].filter(Boolean).join('|');
+        set({ sending: false, err: fe });
+        return;
+      }
+      set({
+        sending: false,
+        sendErr: r.status === 503 ? 'not_configured' : r.status === 429 ? 'rate' : 'failed',
+        leadsOn: r.status === 503 ? false : x.leadsOn,
+      });
+    } catch {
+      set({ sending: false, sendErr: 'failed' });
+    }
   };
   const bad = (k: string) => errs.includes(k);
   return {
@@ -60,7 +143,7 @@ function useContactVals() {
     send,
     sending: s.sending,
     sendLabel: s.sending ? t('sending') : t('sendLabel'),
-    resetForm: up({ sent: false, err: '', fav: '', favCom: false }),
+    resetForm: up({ sent: false, err: '', sendErr: '', fav: '', favCom: false, calc: null }),
     picks,
     hasPicks: picks.length > 0,
     noPicks: picks.length === 0,
@@ -74,17 +157,31 @@ function useContactVals() {
     sTel: s.sTel,
     sMethod: s.sMethod,
     sPicks: picks.length ? picks.map((p) => p.label).join('; ') : t('notSpecified'),
+    leadsOff: s.leadsOn === false,
+    sendErr: s.sendErr,
   };
 }
 
 export function Contact() {
   const t = useTranslations('contact');
-  const { site } = useSiteData();
+  const { cfg, locale } = useSiteData();
   const v = useContactVals();
+  const office = cfg.office[locale as 'ru'];
+  const hours = cfg.hours[locale as 'ru'];
+  const wa = waHref(cfg, t('waHello'));
+  const chats = [cfg.whatsapp && 'WhatsApp', cfg.telegram && 'Telegram'].filter(Boolean).join(' · ');
+  const anyContact = !!(cfg.phone || wa || cfg.telegram || office || hours || cfg.email);
+  // working channels to offer while the form is not connected
+  const alt = [
+    wa && { href: wa, label: 'WhatsApp', ext: true },
+    cfg.telegram && { href: cfg.telegram.url, label: 'Telegram', ext: true },
+    cfg.phone && { href: cfg.phone.href, label: t('callUs'), ext: false },
+    cfg.email && { href: 'mailto:' + cfg.email, label: 'E-mail', ext: false },
+  ].filter((x): x is { href: string; label: string; ext: boolean } => !!x);
   return (
     <>
       {' '}
-      <section className="sec dk ct p3" id="contact">
+      <section className="sec dk ct p3" id="contact" data-lazybg="">
         {' '}
         <div className="wrap cg">
           {' '}
@@ -103,27 +200,58 @@ export function Contact() {
             </div>{' '}
             <p className="lead mt">{t('leaveYourNumberWe')}</p>{' '}
             <dl className="cinfo">
-              {' '}
-              <div>
-                <dt>{t('salesTeam')}</dt>
-                <dd>{site.phone}</dd>
-              </div>{' '}
-              <div>
-                <dt>{'WhatsApp · Telegram'}</dt>
-                <dd>{site.whatsapp}</dd>
-              </div>{' '}
-              <div>
-                <dt>{t('salesOffice')}</dt>
-                <dd>{t('ismoiliSomoniStBy')}</dd>
-              </div>{' '}
-              <div>
-                <dt>{t('openingHours')}</dt>
-                <dd>{t('monSat900')}</dd>
-              </div>{' '}
-              <div>
-                <dt>{'E-mail'}</dt>
-                <dd>{site.email}</dd>
-              </div>{' '}
+              {cfg.phone && (
+                <div>
+                  <dt>{t('salesTeam')}</dt>
+                  <dd>
+                    <a href={cfg.phone.href}>{cfg.phone.display}</a>
+                  </dd>
+                </div>
+              )}{' '}
+              {chats && (
+                <div>
+                  <dt>{chats}</dt>
+                  <dd>
+                    {wa && (
+                      <a href={wa} target="_blank" rel="noopener noreferrer">
+                        {cfg.whatsapp!.display}
+                      </a>
+                    )}
+                    {wa && cfg.telegram && ' · '}
+                    {cfg.telegram && (
+                      <a href={cfg.telegram.url} target="_blank" rel="noopener noreferrer">
+                        {cfg.telegram.handle}
+                      </a>
+                    )}
+                  </dd>
+                </div>
+              )}{' '}
+              {office && (
+                <div>
+                  <dt>{t('salesOffice')}</dt>
+                  <dd>{office}</dd>
+                </div>
+              )}{' '}
+              {hours && (
+                <div>
+                  <dt>{t('openingHours')}</dt>
+                  <dd>{hours}</dd>
+                </div>
+              )}{' '}
+              {cfg.email && (
+                <div>
+                  <dt>{'E-mail'}</dt>
+                  <dd>
+                    <a href={'mailto:' + cfg.email}>{cfg.email}</a>
+                  </dd>
+                </div>
+              )}{' '}
+              {!anyContact && (
+                <div>
+                  <dt>{t('salesTeam')}</dt>
+                  <dd>{t('contactsPending')}</dd>
+                </div>
+              )}
             </dl>{' '}
           </div>{' '}
           <div className="fm rv" role="group" aria-label={t('enquiryForm')}>
@@ -224,9 +352,11 @@ export function Contact() {
                       <label htmlFor="f-apt">{t('whatAreYouLooking')}</label>{' '}
                       <select id="f-apt" name="apt">
                         {' '}
-                        <option>{t('notSureYet')}</option> <option>{t('n1Bedroom3554')}</option>{' '}
-                        <option>{t('n2Bedroom6382')}</option> <option>{t('n4Bedroom13356')}</option>{' '}
-                        <option>{t('apartmentWithPenthouseZone')}</option> <option>{t('commercialSpace')}</option>{' '}
+                        <option value="">{t('notSureYet')}</option> <option value="r1">{t('n1Bedroom3554')}</option>{' '}
+                        <option value="r2">{t('n2Bedroom6382')}</option>{' '}
+                        <option value="r4">{t('n4Bedroom13356')}</option>{' '}
+                        <option value="ph">{t('apartmentWithPenthouseZone')}</option>{' '}
+                        <option value="com">{t('commercialSpace')}</option>{' '}
                       </select>{' '}
                     </div>{' '}
                   </>
@@ -237,13 +367,53 @@ export function Contact() {
                   </label>
                   <textarea id="f-msg" name="msg" rows={2} placeholder={t('questionOrWishes')}></textarea>
                 </div>{' '}
+                <div className="hp" aria-hidden="true">
+                  <label htmlFor="f-company">Company</label>
+                  <input id="f-company" name="company" type="text" tabIndex={-1} autoComplete="off" />
+                </div>
+                {(v.leadsOff || v.sendErr) && (
+                  <div className="fm-st" role={v.sendErr ? 'alert' : 'note'} id="fm-st">
+                    <p>
+                      {v.sendErr === 'rate' ? t('errRate') : v.sendErr === 'failed' ? t('errFailed') : t('formOff')}
+                    </p>
+                    {v.sendErr !== 'rate' && v.sendErr !== 'failed' && alt.length > 0 && (
+                      <p>
+                        {t('formOffAlt')}{' '}
+                        {alt.map((a, i) => (
+                          <Fragment key={a.href}>
+                            {i > 0 && ' · '}
+                            <a href={a.href} {...(a.ext ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+                              {a.label}
+                            </a>
+                          </Fragment>
+                        ))}
+                      </p>
+                    )}
+                  </div>
+                )}
                 <div className="fm-f">
                   {' '}
                   <p>
-                    <i>{'*'}</i> {t('requiredFieldsByPressing')} <u>{t('privacyPolicy')}</u>
-                    {'.'}
+                    <i>{'*'}</i>{' '}
+                    {cfg.privacyUrl ? (
+                      <>
+                        {t('requiredFieldsByPressing')}{' '}
+                        <a href={cfg.privacyUrl} target="_blank" rel="noopener noreferrer">
+                          <u>{t('privacyPolicy')}</u>
+                        </a>
+                        {'.'}
+                      </>
+                    ) : (
+                      t('requiredOnly')
+                    )}
                   </p>{' '}
-                  <button className="btn b-gold" type="button" onClick={v.send} disabled={!!v.sending}>
+                  <button
+                    className="btn b-gold"
+                    type="button"
+                    onClick={v.send}
+                    disabled={!!v.sending || v.leadsOff}
+                    aria-describedby={v.leadsOff ? 'fm-st' : undefined}
+                  >
                     {v.sendLabel}{' '}
                     <svg width="18" height="10" viewBox="0 0 18 10" fill="none" aria-hidden="true">
                       <path d="M0 5h16M12 1l4 4-4 4" stroke="currentColor" strokeWidth="1.3"></path>

@@ -3,6 +3,8 @@
 
 import { Fragment, useEffect, useRef, type ChangeEvent } from 'react';
 import { useTranslations } from 'next-intl';
+import { Pic } from '@/components/Pic';
+import { Stage3DStatus } from '@/components/Stage3DStatus';
 import { useShallow } from 'zustand/react/shallow';
 import { useSiteData } from '@/components/SiteProvider';
 import { get, set, tf, up, useSite } from '@/lib/store';
@@ -112,7 +114,7 @@ export function Lifestyle() {
               {' '}
               <div>
                 {' '}
-                <img src="/assets/aerial.webp" alt={t('aerialViewLandscapingParking')} loading="lazy" />{' '}
+                <Pic src="/assets/aerial.webp" alt={t('aerialViewLandscapingParking')} sizes="92vw" />{' '}
                 <span className="pin" style={{ left: '18%', top: '18%' }}>
                   {'1'}
                 </span>{' '}
@@ -209,8 +211,9 @@ export function Lifestyle() {
               {' '}
               <figure className={v.sunFCls}>
                 {' '}
-                <img className="sun-i" src={v.sunImg} alt={v.sunAlt} />{' '}
+                <img className="sun-i" src={v.sunImg} alt={v.sunAlt} loading="lazy" decoding="async" />{' '}
                 <canvas className="sun-gl" ref={sunView} role="img" aria-label={v.sunAlt}></canvas>{' '}
+                <Stage3DStatus which="sunSt" />
                 <div className="sun-n" aria-hidden="true" style={{ transform: 'rotate(-24deg)' }}>
                   <i></i>
                   <b>{t('n')}</b>

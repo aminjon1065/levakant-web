@@ -3,7 +3,9 @@
 
 import { Fragment } from 'react';
 import { useTranslations } from 'next-intl';
+import { Pic } from '@/components/Pic';
 import { useShallow } from 'zustand/react/shallow';
+import { DemoTag } from '@/components/DemoTag';
 import { useSiteData } from '@/components/SiteProvider';
 import { askCom } from '@/lib/actions';
 import { tf, up, useSite } from '@/lib/store';
@@ -46,6 +48,7 @@ function useCommerceVals() {
 export function Commerce() {
   const t = useTranslations('commerce');
   const v = useCommerceVals();
+  const { demo } = useSiteData();
   return (
     <>
       {' '}
@@ -70,7 +73,7 @@ export function Commerce() {
           </div>{' '}
         </div>{' '}
         <div className="cm-img rvi px">
-          <img src="/assets/commerce.webp" alt={t('groundFloorShopfrontGlazing')} loading="lazy" />
+          <Pic src="/assets/commerce.webp" alt={t('groundFloorShopfrontGlazing')} sizes="100vw" />
         </div>{' '}
         <div className="wrap">
           {' '}
@@ -104,7 +107,10 @@ export function Commerce() {
                 </div>{' '}
                 <div>
                   <dt>{t('leaseSale')}</dt>
-                  <dd>{t('saleFrom7500')}</dd>
+                  <dd>
+                    {t('saleFrom7500')}
+                    <DemoTag on={demo} />
+                  </dd>
                 </div>{' '}
               </dl>{' '}
               <div>
@@ -135,12 +141,12 @@ export function Commerce() {
                   {' '}
                   {v.cA && (
                     <>
-                      <img className="sw" src={v.comImg} alt={v.comAlt} />
+                      <img className="sw" src={v.comImg} alt={v.comAlt} loading="lazy" decoding="async" />
                     </>
                   )}{' '}
                   {v.cB && (
                     <>
-                      <img className="sw" src={v.comImg} alt={v.comAlt} />
+                      <img className="sw" src={v.comImg} alt={v.comAlt} loading="lazy" decoding="async" />
                     </>
                   )}{' '}
                   <div className="fp-c">

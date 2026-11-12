@@ -65,6 +65,8 @@ export function Floorplan() {
                         {v.fpA && (
                           <>
                             <img
+                              loading="lazy"
+                              decoding="async"
                               className="sw"
                               src={v.planImg}
                               alt={v.planAlt}
@@ -75,6 +77,8 @@ export function Floorplan() {
                         {v.fpB && (
                           <>
                             <img
+                              loading="lazy"
+                              decoding="async"
                               className="sw"
                               src={v.planImg}
                               alt={v.planAlt}
@@ -169,6 +173,8 @@ export function Floorplan() {
                         {v.fpA && (
                           <>
                             <img
+                              loading="lazy"
+                              decoding="async"
                               className="sw"
                               src={v.planImg}
                               alt={v.planAlt}
@@ -179,6 +185,8 @@ export function Floorplan() {
                         {v.fpB && (
                           <>
                             <img
+                              loading="lazy"
+                              decoding="async"
                               className="sw"
                               src={v.planImg}
                               alt={v.planAlt}

@@ -1,10 +1,18 @@
 // Generated from levakant-source/src/main.html <!--s:footer--> — hand-maintained from here on.
 import { useTranslations } from 'next-intl';
 import { LangSwitch } from '@/components/LangSwitch';
-import type { SiteInfo } from '@/content/site';
+import type { PublicConfig } from '@/lib/config';
 
-/** `demo`: show the "examples" disclaimer while any price/contact on the page is a placeholder. */
-export function Footer({ demo, site }: { demo: boolean; site: SiteInfo }) {
+/**
+ * `demo`: show the "examples" disclaimer while prices / terms on the page are the mockup's examples.
+ * Contacts and social profiles appear only when configured (no placeholders).
+ */
+export function Footer({ demo, cfg }: { demo: boolean; cfg: PublicConfig }) {
+  const socials = [
+    cfg.instagram && { k: 'Instagram', v: cfg.instagram.handle, href: cfg.instagram.url },
+    cfg.telegram && { k: 'Telegram', v: cfg.telegram.handle, href: cfg.telegram.url },
+    cfg.facebook && { k: 'Facebook', v: cfg.facebook.label, href: cfg.facebook.url },
+  ].filter((x): x is { k: string; v: string; href: string } => !!x);
   const t = useTranslations('footer');
   return (
     <>
@@ -17,7 +25,7 @@ export function Footer({ demo, site }: { demo: boolean; site: SiteInfo }) {
             {' '}
             <div>
               {' '}
-              <a className="brand" href="#top" aria-label={t('levakantResidenceBackTo')}>
+              <a className="brand" href="#top">
                 {' '}
                 <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
                   <path
@@ -27,8 +35,8 @@ export function Footer({ demo, site }: { demo: boolean; site: SiteInfo }) {
                   ></path>
                 </svg>{' '}
                 <span>
-                  <b>{'LEVAKANT'}</b>
-                  <em>{'RESIDENCE'}</em>
+                  <b>{'LEVAKANT'}</b> <em>{'RESIDENCE'}</em>
+                  <span className="vh">{' — ' + t('toTop')}</span>
                 </span>{' '}
               </a>{' '}
               <p className="sf" style={{ fontSize: '26px', lineHeight: '1.15', marginTop: '20px', maxWidth: '12em' }}>
@@ -74,36 +82,34 @@ export function Footer({ demo, site }: { demo: boolean; site: SiteInfo }) {
                 <br />
                 {t('republicOfTajikistan')}
               </p>{' '}
-              <p
-                style={{
-                  marginTop: '12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '6px',
-                  alignItems: 'flex-start',
-                }}
-              >
-                <span>{site.phone}</span>
-                <span>{site.email}</span>
-              </p>{' '}
+              {(cfg.phone || cfg.email) && (
+                <p
+                  style={{
+                    marginTop: '12px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '6px',
+                    alignItems: 'flex-start',
+                  }}
+                >
+                  {cfg.phone && <a href={cfg.phone.href}>{cfg.phone.display}</a>}
+                  {cfg.email && <a href={'mailto:' + cfg.email}>{cfg.email}</a>}
+                </p>
+              )}{' '}
             </div>{' '}
             <div>
               {' '}
-              <h3>{t('socialMedia')}</h3>{' '}
-              <p className="soc">
-                <span>
-                  <b>{'Instagram'}</b>
-                  {site.instagram}
-                </span>
-                <span>
-                  <b>{'Telegram'}</b>
-                  {site.telegram}
-                </span>
-                <span>
-                  <b>{'Facebook'}</b>
-                  {site.facebook}
-                </span>
-              </p>{' '}
+              <h3>{socials.length ? t('socialMedia') : t('language')}</h3>{' '}
+              {socials.length > 0 && (
+                <p className="soc">
+                  {socials.map((x) => (
+                    <a key={x.k} href={x.href} target="_blank" rel="noopener noreferrer">
+                      <b>{x.k}</b>
+                      {x.v}
+                    </a>
+                  ))}
+                </p>
+              )}{' '}
               <LangSwitch style={{ display: 'inline-flex', marginTop: '18px' }} />{' '}
             </div>{' '}
           </div>{' '}

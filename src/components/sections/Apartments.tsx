@@ -3,12 +3,16 @@
 
 import { Fragment } from 'react';
 import { useTranslations } from 'next-intl';
+import { DemoTag } from '@/components/DemoTag';
+import { Pic } from '@/components/Pic';
+import { useSiteData } from '@/components/SiteProvider';
 import { useCatalogVals } from '@/lib/catalog';
 import { useDragRotate } from '@/lib/drag';
 
 export function Apartments() {
   const t = useTranslations('apartments');
   const v = useCatalogVals();
+  const { demo } = useSiteData();
   useDragRotate('q3');
   return (
     <>
@@ -101,10 +105,10 @@ export function Apartments() {
               {v.cards.map((c, i) => (
                 <Fragment key={i}>
                   {' '}
-                  <button className={c.cls} onClick={c.pick} aria-label={c.aria} aria-pressed={c.on}>
+                  <button className={c.cls} onClick={c.pick} aria-pressed={c.on}>
                     {' '}
                     <span className="th">
-                      <img src={c.img} alt="" loading="lazy" />
+                      <Pic src={c.img} alt="" sizes="64px" />
                     </span>{' '}
                     <span>
                       <span className="t">{c.title}</span>
@@ -212,12 +216,12 @@ export function Apartments() {
                           {' '}
                           {v.vA && (
                             <>
-                              <img className="sw" src={v.sImg} alt={v.sAlt} />
+                              <img className="sw" src={v.sImg} alt={v.sAlt} loading="lazy" decoding="async" />
                             </>
                           )}{' '}
                           {v.vB && (
                             <>
-                              <img className="sw" src={v.sImg} alt={v.sAlt} />
+                              <img className="sw" src={v.sImg} alt={v.sAlt} loading="lazy" decoding="async" />
                             </>
                           )}{' '}
                           {v.sRp.map((r, i) => (
@@ -416,7 +420,13 @@ export function Apartments() {
                     <div className="kp-in">
                       <div className="kp-b">
                         {' '}
-                        <img src={v.kpImg} alt="" style={{ aspectRatio: '2706 / 1536' }} />{' '}
+                        <img
+                          src={v.kpImg}
+                          alt=""
+                          style={{ aspectRatio: '2706 / 1536' }}
+                          loading="lazy"
+                          decoding="async"
+                        />{' '}
                         {v.kpZones.map((z, i) => (
                           <Fragment key={i}>
                             <span
@@ -450,7 +460,10 @@ export function Apartments() {
                 </div>{' '}
               </div>{' '}
               <div className="cv-px">
-                <span className="lb">{t('price')}</span>
+                <span className="lb">
+                  {t('price')}
+                  <DemoTag on={demo} />
+                </span>
                 <b>
                   {t('fromSpx', { sPx: v.sPx })} <small>{t('somoni')}</small>
                 </b>

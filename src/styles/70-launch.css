@@ -1,0 +1,61 @@
+/*
+ * Launch layer — additions on top of the approved mockup (never overrides its look).
+ * States the mockup did not need: real links in contacts, honest form status, PDF links,
+ * lazy decorative backgrounds, the 3D status chip, the floor-plan scroll hint.
+ */
+
+/* honeypot field for bots: not visible, not focusable */
+.hp{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+
+/* contact links keep the mockup's text style */
+.cinfo a,.ft a[href^="tel:"],.ft a[href^="mailto:"]{color:inherit;text-decoration:underline;text-decoration-color:rgba(201,164,106,.45);text-underline-offset:3px}
+.cinfo a:hover,.ft a[href^="tel:"]:hover,.ft a[href^="mailto:"]:hover{text-decoration-color:var(--gold)}
+.soc a{display:flex;flex-direction:column;gap:1px;font-size:13.5px;color:inherit}
+.soc a:hover{color:var(--gold)}
+
+/* form status: channel not connected / send failed (the form keeps what was typed) */
+.fm-st{grid-column:1/-1;border-left:2px solid var(--gold);background:rgba(201,164,106,.08);padding:12px 14px;font-size:13px;line-height:1.5;color:var(--iv);display:grid;gap:6px}
+.fm-st a{color:var(--gold);text-decoration:underline;text-underline-offset:3px;font-weight:600}
+.fm-f .btn:disabled{opacity:.45;cursor:not-allowed}
+.fm-f p a{color:inherit}
+
+/* documents: published PDF is a link, otherwise a "pending" status */
+a.st{color:var(--gold);border-color:rgba(201,164,106,.6)}
+a.st:hover{background:rgba(201,164,106,.12)}
+a.tl-s{text-decoration:underline;text-underline-offset:3px}
+
+/* live 3D status over the static scheme: loading / not started / failed */
+.g3-st{position:absolute;left:var(--pad,16px);bottom:14px;z-index:3;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;max-width:min(92%,520px);margin:0;padding:8px 12px;background:rgba(17,19,21,.82);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid var(--ld);font-size:12px;line-height:1.4;color:var(--iv)}
+.b3c .g3-st{left:0}
+.sun-f .g3-st{left:16px}
+.g3-st.ld span::before{content:'';display:inline-block;width:7px;height:7px;margin-right:8px;border-radius:50%;background:var(--gold);vertical-align:.08em;animation:g3p 1.1s ease-in-out infinite}
+@keyframes g3p{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.g3-st.ld span::before{animation:none}}
+.g3-st button{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);border-bottom:1px solid currentColor;padding:6px 0;min-height:32px}
+
+/* responsive hero render: AVIF with WebP fallback (same crop and sky-mask alignment; only the file size changes) */
+.h-ph{background-image:url(/assets/r/hero_photo-1600.webp);background-image:image-set(url(/assets/r/hero_photo-1600.avif) type("image/avif") 1x,url(/assets/r/hero_photo-1600.webp) type("image/webp") 1x,url(/assets/r/hero_photo-2400.avif) type("image/avif") 2x,url(/assets/hero_photo.webp) type("image/webp") 2x)}
+@media (max-width:760px){.hero .h-ph{background-image:url(/assets/r/hero_photo-1080.webp),linear-gradient(180deg,#6b8fab 0,#6e92ad 21.5vw);background-image:image-set(url(/assets/r/hero_photo-1080.avif) type("image/avif") 1x,url(/assets/r/hero_photo-1080.webp) type("image/webp") 1x,url(/assets/r/hero_photo-1080.avif) type("image/avif") 2x,url(/assets/r/hero_photo-1080.webp) type("image/webp") 2x,url(/assets/r/hero_photo-1600.avif) type("image/avif") 3x,url(/assets/r/hero_photo-1600.webp) type("image/webp") 3x),linear-gradient(180deg,#6b8fab 0,#6e92ad 21.5vw)}}
+@media (min-width:761px) and (max-width:1100px){.hero .h-ph{background-image:url(/assets/r/hero_photo-1600.webp),linear-gradient(180deg,#6b8fab 0,#6e92ad 6vw);background-image:image-set(url(/assets/r/hero_photo-1600.avif) type("image/avif") 1x,url(/assets/r/hero_photo-1600.webp) type("image/webp") 1x,url(/assets/r/hero_photo-2400.avif) type("image/avif") 2x,url(/assets/hero_photo.webp) type("image/webp") 2x),linear-gradient(180deg,#6b8fab 0,#6e92ad 6vw)}}
+
+/* decorative backgrounds of far sections load when the section approaches (needs JS; without JS nothing is deferred) */
+.js [data-lazybg]:not(.near) *,.js [data-lazybg]:not(.near)::before,.js [data-lazybg]:not(.near)::after{background-image:none!important}
+
+/* images with intrinsic width/height attributes keep their aspect ratio unless the mockup sets a height */
+:where(.lr img[width][height]){height:auto}
+
+/* visually hidden, read by screen readers */
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+/* the designers' ДЕМО mark at full opacity: 9px text needs ≥4.5:1 contrast */
+.dm{opacity:1}
+
+/* sections below the hero are laid out and painted only when they approach the viewport: their fonts,
+   images and layout work leave the first-load path. Rendering is unchanged once they are near. */
+@supports (content-visibility:auto){
+#about,#price,#building,#floorplan,#apartments,#trust,#lifestyle,#location,#gallery,#architecture,#commerce,#contact,.ft{content-visibility:auto;contain-intrinsic-size:auto 1400px}
+}
+
+/* sky mask behind the wordmark: same image as lossless WebP (8 KB instead of 25 KB) */
+.h-wmk{-webkit-mask-image:url(/assets/r/hero_skymask.webp);mask-image:url(/assets/r/hero_skymask.webp)}
+@media (max-width:760px){.hero .h-wmk{-webkit-mask-image:url(/assets/r/hero_skymask.webp);mask-image:url(/assets/r/hero_skymask.webp)}}
+@media (min-width:761px) and (max-width:1100px){.hero .h-wmk{-webkit-mask-image:url(/assets/r/hero_skymask.webp);mask-image:url(/assets/r/hero_skymask.webp)}}

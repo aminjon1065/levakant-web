@@ -3,6 +3,7 @@
 
 import { Fragment } from 'react';
 import { useTranslations } from 'next-intl';
+import { Pic } from '@/components/Pic';
 import { useSiteData } from '@/components/SiteProvider';
 import { galScroll, lbKey, openLb } from '@/lib/gallery';
 
@@ -15,7 +16,6 @@ export function Gallery() {
       ar: g.ar,
       no: g.no,
       t: g.t,
-      aria: t('openAria', { t: g.t }),
       open: () => openLb(i),
     })),
     galCount: t('count', { n: d.gal.length }),
@@ -61,14 +61,15 @@ export function Gallery() {
           {v.gal.map((g, i) => (
             <Fragment key={i}>
               {' '}
-              <button className="gi" onClick={g.open} aria-label={g.aria}>
+              <button className="gi" onClick={g.open}>
                 {' '}
                 <span className="af" style={{ display: 'block', aspectRatio: g.ar }}>
-                  <img src={g.img} alt="" loading="lazy" />
+                  <Pic src={g.img} alt="" sizes="(max-width: 760px) 340px, 560px" />
                 </span>{' '}
                 <span className="cap">
                   <b>{g.no}</b>
                   {g.t}
+                  <span className="vh">{' — ' + t('openHint')}</span>
                 </span>{' '}
               </button>{' '}
             </Fragment>

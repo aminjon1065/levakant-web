@@ -10,6 +10,7 @@ import '@/styles/30-v5.css';
 import '@/styles/40-v6.css';
 import '@/styles/50-v7.css';
 import '@/styles/60-v8-sales.css';
+import '@/styles/70-launch.css';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -43,12 +44,30 @@ export default async function LocaleLayout({ children, params }: LayoutProps<'/[
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         {PRELOAD.map((f) => (
           <link key={f} rel="preload" href={`/fonts/${f}.woff2`} as="font" type="font/woff2" crossOrigin="" />
         ))}
-        <link rel="preload" href="/assets/hero_photo.webp" as="image" fetchPriority="high" />
+        {/* the hero render is the LCP element: preload the AVIF variant the CSS will pick (browsers without AVIF skip it) */}
+        <link
+          rel="preload"
+          as="image"
+          imageSrcSet="/assets/r/hero_photo-1080.avif 2x, /assets/r/hero_photo-1600.avif 3x"
+          type="image/avif"
+          media="(max-width: 760px)"
+          fetchPriority="high"
+        />
+        <link
+          rel="preload"
+          as="image"
+          imageSrcSet="/assets/r/hero_photo-1600.avif 1x, /assets/r/hero_photo-2400.avif 2x"
+          type="image/avif"
+          media="(min-width: 761px)"
+          fetchPriority="high"
+        />
+        {/* lets CSS defer decorative backgrounds of far sections; without JS nothing is deferred */}
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
       </head>
       <body>
         <NextIntlClientProvider>{children}</NextIntlClientProvider>

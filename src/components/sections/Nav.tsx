@@ -66,7 +66,7 @@ export function Nav() {
       </a>{' '}
       <nav className="nav nt p1" aria-label={t('mainNavigation')}>
         {' '}
-        <a className="brand" href="#top" aria-label={t('levakantResidenceBackTo')}>
+        <a className="brand" href="#top">
           {' '}
           <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true">
             <path
@@ -76,8 +76,8 @@ export function Nav() {
             ></path>
           </svg>{' '}
           <span>
-            <b>{'LEVAKANT'}</b>
-            <em>{'RESIDENCE'}</em>
+            <b>{'LEVAKANT'}</b> <em>{'RESIDENCE'}</em>
+            <span className="vh">{' — ' + t('toTop')}</span>
           </span>{' '}
         </a>{' '}
         <div className="nav-l">

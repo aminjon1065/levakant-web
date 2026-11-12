@@ -26,14 +26,15 @@ export interface CalcResult {
 export function calc(p: Pricing, total: number, fl: FloorKey, down: number, term: number): CalcResult {
   const price = Math.round(total * p.pxm[fl]);
   const full = down >= 100;
-  const k = 1 - p.discountFull / 100;
-  const rest = price - (price * down) / 100;
+  // Round the parts so that they add up to the price exactly (down + rest = price; paid + discount = price).
+  const downSum = full ? Math.round(price * (1 - p.discountFull / 100)) : Math.round((price * down) / 100);
+  const rest = full ? 0 : price - downSum;
   return {
     price,
     full,
-    downSum: full ? price * k : (price * down) / 100,
+    downSum,
     rest,
-    monthly: full ? price * k : rest / term,
-    discount: price * (p.discountFull / 100),
+    monthly: full ? downSum : rest / term,
+    discount: full ? price - downSum : Math.round(price * (p.discountFull / 100)),
   };
 }

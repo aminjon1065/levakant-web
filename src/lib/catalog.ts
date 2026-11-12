@@ -90,7 +90,6 @@ export function useCatalogVals() {
     floors: l.flShort,
     px: n(pxMin(d, p, l.id)),
     fav: favs.includes(l.id) ? 'on' : '',
-    aria: t('cardAria', { title: l.title, area: l.as, fl: l.fl }),
     pick: up({ apt: l.id, vFlip: !s.vFlip, vz: 0, rm: -1 }),
   }));
   const fActive = s.fT !== 'all' || s.fA !== 'all' || s.fF !== 'all';
