@@ -64,11 +64,15 @@ async function visitStates(page: Page, collect: () => Promise<void>) {
   await collect();
   await page.locator('#apartments .cv-md button').first().click();
   await page.locator('#apartments .cv-tl .tb').last().click(); // full screen plan
+  await expect(page.locator('#pz-x')).toBeFocused();
   await collect();
   await page.keyboard.press('Escape');
+  await expect(page.locator('.pzx')).toHaveCount(0);
   await page.locator('#gallery .gi').first().click();
+  await expect(page.locator('#lb-x')).toBeFocused();
   await collect();
   await page.keyboard.press('Escape');
+  await expect(page.locator('[role=dialog]')).toHaveCount(0);
   await page.locator('#contact .fm-f button').click(); // errors
   await expect(page.locator('#f-name')).toBeFocused(); // the form moves focus to the first invalid field
   await collect();

@@ -5,6 +5,7 @@ import { Fragment, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Stage3DStatus } from '@/components/Stage3DStatus';
 import { useExplorerVals } from '@/lib/explorer';
+import { imgDims } from '@/lib/imgDims';
 import { useDragRotate } from '@/lib/drag';
 import { useStage } from '@/engine/useStage';
 
@@ -61,20 +62,17 @@ export function Building() {
               {v.floors.map((f, i) => (
                 <Fragment key={i}>
                   {' '}
-                  <button className={f.rcls} onClick={f.pick} aria-label={f.aria} aria-pressed={f.on}>
+                  <button className={f.rcls} onClick={f.pick} aria-pressed={f.on}>
                     <b>{f.n}</b>
                     <small>{f.kind}</small>
+                    <span className="vh">{' — ' + f.aria}</span>
                   </button>{' '}
                 </Fragment>
               ))}{' '}
-              <button
-                className={v.baseCls}
-                onClick={v.pickBase}
-                aria-label={t('lowerLevelShow')}
-                aria-pressed={v.baseOn}
-              >
+              <button className={v.baseCls} onClick={v.pickBase} aria-pressed={v.baseOn}>
                 <b>{'−1'}</b>
                 <small>{t('retail')}</small>
+                <span className="vh">{' — ' + t('lowerLevelShow')}</span>
               </button>{' '}
             </div>{' '}
             <div className="b3c">
@@ -278,7 +276,14 @@ function Level({ l, withZones, v }: { l: ExplorerVals['LV'][number]; withZones: 
         <div className="xt">
           {l.sel && (
             <>
-              <img className="sw" src={v.planImg} alt={v.planAlt} loading="lazy" decoding="async" />
+              <img
+                className="sw"
+                src={v.planImg}
+                {...imgDims(v.planImg)}
+                alt={v.planAlt}
+                loading="lazy"
+                decoding="async"
+              />
               {withZones && (
                 <>
                   {' '}
@@ -295,8 +300,8 @@ function Level({ l, withZones, v }: { l: ExplorerVals['LV'][number]; withZones: 
                           clipPath: `polygon(${z.poly})`,
                         }}
                         onClick={z.pick}
-                        aria-label={z.aria}
-                        aria-pressed={z.on}
+                        tabIndex={-1}
+                        aria-hidden="true"
                       ></button>{' '}
                     </Fragment>
                   ))}
@@ -305,12 +310,13 @@ function Level({ l, withZones, v }: { l: ExplorerVals['LV'][number]; withZones: 
             </>
           )}
         </div>{' '}
-        <button className="lb3" style={{ transform: l.ltf }} aria-label={l.aria} tabIndex={-1}>
+        <button className="lb3" style={{ transform: l.ltf }} tabIndex={-1}>
           <b>{l.n}</b>
           <span>
             <em>{l.ps}</em>
             <i>{l.pl}</i>
           </span>
+          <span className="vh">{' — ' + l.aria}</span>
         </button>{' '}
       </div>{' '}
     </>

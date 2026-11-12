@@ -1,7 +1,8 @@
 {
   "meta": {
     "title": "LEVAKANT RESIDENCE — residential complex in Levakant",
-    "description": "LEVAKANT RESIDENCE — a new residential building on Ismoili Somoni Street in Levakant: 9 floors plus an attic level, apartments from 35 to 134 m², a 3D model of the building, layouts, prices and instalments."
+    "description": "LEVAKANT RESIDENCE — a new residential building on Ismoili Somoni Street in Levakant: 9 floors plus an attic level, apartments from 35 to 134 m², a 3D model of the building, layouts, prices and instalments.",
+    "ogAlt": "LEVAKANT RESIDENCE — architectural rendering of the building on Ismoili Somoni Street"
   },
   "common": {
     "demo": "demo",
@@ -11,7 +12,11 @@
     "g3OffWebgl": "This browser does not support WebGL 2 — showing the simplified scheme.",
     "g3OffPref": "Reduced motion is on — showing the simplified scheme.",
     "g3OffDevice": "To save memory and data, the simplified scheme is shown.",
-    "g3Show": "Show the 3D model"
+    "g3Show": "Show the 3D model",
+    "panLabel": "Plan scrolling",
+    "panLeft": "Move the plan left",
+    "panRight": "Move the plan right",
+    "panHint": "Swipe the plan to see all of it"
   },
   "nav": {
     "skipToContent": "Skip to content",
@@ -322,7 +327,6 @@
     "optPhF": "Attic",
     "countLabel": "Showing {n, plural, one {# layout} other {# layouts}}",
     "nothingFound": "Nothing found",
-    "sortAria": "Sort by area: {dir}",
     "sortDesc": "descending",
     "sortAsc": "ascending",
     "kickerPh": "{title} · with a “Penthouse” zone",
@@ -341,7 +345,8 @@
     "rmNone": "not selected",
     "rmOf": "{a} m² of {total} m²",
     "rmHint": "Tap a room on the plan, the model or the list",
-    "rmByLabels": "Areas — as labelled on the plan"
+    "rmByLabels": "Areas — as labelled on the plan",
+    "sortHint": "sorted {dir}"
   },
   "trust": {
     "developer": "Developer",
@@ -490,7 +495,8 @@
     "courtyardFaAdeWith": "Courtyard façade with balconies and loggias",
     "onTheCourtyardSide": "On the courtyard side",
     "courtyardSideApartmentsOn": "Courtyard-side apartments on floors 2–8 have balconies. They are marked on the floor plans.",
-    "courtyardSideBalconies": "Courtyard-side balconies"
+    "courtyardSideBalconies": "Courtyard-side balconies",
+    "detailsRegion": "Façade details"
   },
   "commerce": {
     "commercial": "Commercial",
@@ -632,6 +638,12 @@
     "enlargePlan": "Enlarge plan",
     "closePlan": "Close plan",
     "n2M": "2 m",
-    "getPriceInstalments": "Get price & instalments"
+    "getPriceInstalments": "Get price & instalments",
+    "planRegion": "Apartment plan"
+  },
+  "jsonld": {
+    "street": "Ismoili Somoni Street",
+    "city": "Levakant",
+    "region": "Khatlon Region"
   }
 }

@@ -3,7 +3,9 @@
 
 import { Fragment } from 'react';
 import { useTranslations } from 'next-intl';
+import { PanHint } from '@/components/PanHint';
 import { useExplorerVals } from '@/lib/explorer';
+import { imgDims } from '@/lib/imgDims';
 
 /** Floor plan with apartment zones; shares the floor/apartment choice with the 3D building. */
 export function Floorplan() {
@@ -69,6 +71,7 @@ export function Floorplan() {
                               decoding="async"
                               className="sw"
                               src={v.planImg}
+                              {...imgDims(v.planImg)}
                               alt={v.planAlt}
                               style={{ aspectRatio: '2706 / 1536' }}
                             />
@@ -81,6 +84,7 @@ export function Floorplan() {
                               decoding="async"
                               className="sw"
                               src={v.planImg}
+                              {...imgDims(v.planImg)}
                               alt={v.planAlt}
                               style={{ aspectRatio: '2706 / 1536' }}
                             />
@@ -108,8 +112,8 @@ export function Floorplan() {
                         <span>{t('n10M')}</span>
                       </div>{' '}
                     </div>{' '}
-                  </div>{' '}
-                  <p className="swipe">{t('swipeOrZoomThe')}</p>{' '}
+                  </div>
+                  <PanHint /> <p className="swipe">{t('swipeOrZoomThe')}</p>{' '}
                   <div className="fps-o">
                     <span>{t('courtyard')}</span>
                     <span>{t('ismoiliSomoniSt')}</span>
@@ -177,6 +181,7 @@ export function Floorplan() {
                               decoding="async"
                               className="sw"
                               src={v.planImg}
+                              {...imgDims(v.planImg)}
                               alt={v.planAlt}
                               style={{ aspectRatio: '2760 / 1620' }}
                             />
@@ -189,6 +194,7 @@ export function Floorplan() {
                               decoding="async"
                               className="sw"
                               src={v.planImg}
+                              {...imgDims(v.planImg)}
                               alt={v.planAlt}
                               style={{ aspectRatio: '2760 / 1620' }}
                             />
@@ -205,8 +211,8 @@ export function Floorplan() {
                         <span>{t('n10M')}</span>
                       </div>{' '}
                     </div>{' '}
-                  </div>{' '}
-                  <p className="swipe">{t('swipeOrZoomThe')}</p>{' '}
+                  </div>
+                  <PanHint /> <p className="swipe">{t('swipeOrZoomThe')}</p>{' '}
                 </div>{' '}
                 <div className="ex-f">
                   {' '}

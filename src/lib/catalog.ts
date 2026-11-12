@@ -187,7 +187,7 @@ export function useCatalogVals() {
     countLabel: list.length ? t('countLabel', { n: list.length }) : t('nothingFound'),
     toggleSort: up({ sortDesc: !s.sortDesc }),
     sortArrow: s.sortDesc ? '↓' : '↑',
-    sortAria: t('sortAria', { dir: s.sortDesc ? t('sortDesc') : t('sortAsc') }),
+    sortAria: t('sortHint', { dir: s.sortDesc ? t('sortDesc') : t('sortAsc') }),
     fActive,
     resetF: up({ fT: 'all', fA: 'all', fF: 'all' }),
     cards,

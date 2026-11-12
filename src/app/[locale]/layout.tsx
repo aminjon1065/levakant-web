@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
+import { indexable, OG_LOCALE, siteUrl } from '@/lib/site';
 import '@/styles/00-fonts.css';
 import '@/styles/10-main.css';
 import '@/styles/20-v4-building.css';
@@ -19,14 +20,28 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: LayoutProps<'/[locale]'>): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'meta' });
+  const title = t('title');
+  const description = t('description');
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
-    title: t('title'),
-    description: t('description'),
+    metadataBase: new URL(siteUrl()),
+    title,
+    description,
     alternates: {
       canonical: `/${locale}`,
       languages: { ...Object.fromEntries(routing.locales.map((l) => [l, `/${l}`])), 'x-default': '/ru' },
     },
+    openGraph: {
+      type: 'website',
+      siteName: 'LEVAKANT RESIDENCE',
+      title,
+      description,
+      url: `/${locale}`,
+      locale: OG_LOCALE[locale],
+      alternateLocale: routing.locales.filter((l) => l !== locale).map((l) => OG_LOCALE[l]),
+      images: [{ url: '/og.jpg', width: 1200, height: 630, alt: t('ogAlt') }],
+    },
+    twitter: { card: 'summary_large_image', title, description, images: ['/og.jpg'] },
+    robots: indexable() ? { index: true, follow: true } : { index: false, follow: false },
   };
 }
 

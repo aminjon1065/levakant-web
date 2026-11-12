@@ -21,6 +21,7 @@ import { Price } from '@/components/sections/Price';
 import { Trust } from '@/components/sections/Trust';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { getSiteData } from '@/lib/data';
+import { siteUrl } from '@/lib/site';
 import { waHref } from '@/lib/links';
 import { nf } from '@/lib/format';
 import { allMin } from '@/lib/pricing';
@@ -30,9 +31,31 @@ export default async function Page() {
   const locale = await getLocale();
   const { d, pricing, cfg, demo } = getSiteData(locale);
   const t = await getTranslations('contact');
+  const tj = await getTranslations('jsonld');
+  const tm = await getTranslations('meta');
+  // Structured data with confirmed facts only (no demo prices, no unconfirmed coordinates).
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ApartmentComplex',
+    name: 'LEVAKANT RESIDENCE',
+    description: tm('description'),
+    url: `${siteUrl()}/${locale}`,
+    image: `${siteUrl()}/og.jpg`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: tj('street'),
+      addressLocality: tj('city'),
+      addressRegion: tj('region'),
+      addressCountry: 'TJ',
+    },
+  };
   const pxFrom = nf(locale, allMin(d, pricing));
   return (
     <SiteProvider d={d} pricing={pricing} cfg={cfg} demo={demo} locale={locale}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
       <div className="lr" id="lr-root" lang={locale} style={{ '--gold': '#C9A46A' } as CSSProperties}>
         <Nav />
         <Hero pxFrom={pxFrom} demo={demo} />

@@ -6,8 +6,10 @@ import { useTranslations } from 'next-intl';
 import { Pic } from '@/components/Pic';
 import { useShallow } from 'zustand/react/shallow';
 import { DemoTag } from '@/components/DemoTag';
+import { PanHint } from '@/components/PanHint';
 import { useSiteData } from '@/components/SiteProvider';
 import { askCom } from '@/lib/actions';
+import { imgDims } from '@/lib/imgDims';
 import { tf, up, useSite } from '@/lib/store';
 
 /** Ground floor / lower level switch (mockup renderVals: "commerce"). */
@@ -135,18 +137,32 @@ export function Commerce() {
                   {t('lowerLevel')} <span>{t('n82353M')}</span>
                 </button>{' '}
               </div>{' '}
-              <div className="cm-pl">
+              <div className="cm-pl" tabIndex={0} role="region" aria-label={v.comAlt}>
                 {' '}
                 <div className="cm-w">
                   {' '}
                   {v.cA && (
                     <>
-                      <img className="sw" src={v.comImg} alt={v.comAlt} loading="lazy" decoding="async" />
+                      <img
+                        className="sw"
+                        src={v.comImg}
+                        {...imgDims(v.comImg)}
+                        alt={v.comAlt}
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </>
                   )}{' '}
                   {v.cB && (
                     <>
-                      <img className="sw" src={v.comImg} alt={v.comAlt} loading="lazy" decoding="async" />
+                      <img
+                        className="sw"
+                        src={v.comImg}
+                        {...imgDims(v.comImg)}
+                        alt={v.comAlt}
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </>
                   )}{' '}
                   <div className="fp-c">
@@ -159,7 +175,8 @@ export function Commerce() {
                     <span>{t('n10M')}</span>
                   </div>{' '}
                 </div>{' '}
-              </div>{' '}
+              </div>
+              <PanHint />{' '}
               <dl className="led cm-f" aria-live="polite">
                 {' '}
                 {v.comRows.map((r, i) => (

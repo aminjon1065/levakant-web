@@ -1,12 +1,13 @@
 // Generated from levakant-source/src/main.html <!--s:apartments--> — hand-maintained from here on.
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { DemoTag } from '@/components/DemoTag';
 import { Pic } from '@/components/Pic';
 import { useSiteData } from '@/components/SiteProvider';
 import { useCatalogVals } from '@/lib/catalog';
+import { imgDims } from '@/lib/imgDims';
 import { useDragRotate } from '@/lib/drag';
 
 export function Apartments() {
@@ -14,6 +15,20 @@ export function Apartments() {
   const v = useCatalogVals();
   const { demo } = useSiteData();
   useDragRotate('q3');
+  // pre-decode the wall / furniture masks of the selected layout so opening "3D-квартира" stays responsive
+  const selId = v.a3Cls.split('q3-')[2];
+  useEffect(() => {
+    if (!selId) return;
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 300));
+    const h = idle(() =>
+      ['a3w', 'a3f'].forEach((k) => {
+        const im = new Image();
+        im.src = `/assets/a3/${k}_${selId}.webp`;
+        im.decode().catch(() => {});
+      }),
+    );
+    return () => (window.cancelIdleCallback ?? clearTimeout)(h as number);
+  }, [selId]);
   return (
     <>
       {' '}
@@ -82,8 +97,9 @@ export function Apartments() {
               <p className="cnt" aria-live="polite">
                 {v.countLabel}
               </p>{' '}
-              <button className="chip" onClick={v.toggleSort} aria-label={v.sortAria}>
+              <button className="chip" onClick={v.toggleSort}>
                 {t('sortarrow', { sortArrow: v.sortArrow })}
+                <span className="vh">{' — ' + v.sortAria}</span>
               </button>{' '}
               {v.fActive && (
                 <>
@@ -216,12 +232,26 @@ export function Apartments() {
                           {' '}
                           {v.vA && (
                             <>
-                              <img className="sw" src={v.sImg} alt={v.sAlt} loading="lazy" decoding="async" />
+                              <img
+                                className="sw"
+                                src={v.sImg}
+                                {...imgDims(v.sImg)}
+                                alt={v.sAlt}
+                                loading="lazy"
+                                decoding="async"
+                              />
                             </>
                           )}{' '}
                           {v.vB && (
                             <>
-                              <img className="sw" src={v.sImg} alt={v.sAlt} loading="lazy" decoding="async" />
+                              <img
+                                className="sw"
+                                src={v.sImg}
+                                {...imgDims(v.sImg)}
+                                alt={v.sAlt}
+                                loading="lazy"
+                                decoding="async"
+                              />
                             </>
                           )}{' '}
                           {v.sRp.map((r, i) => (
@@ -422,6 +452,7 @@ export function Apartments() {
                         {' '}
                         <img
                           src={v.kpImg}
+                          {...imgDims(v.kpImg)}
                           alt=""
                           style={{ aspectRatio: '2706 / 1536' }}
                           loading="lazy"
@@ -460,12 +491,10 @@ export function Apartments() {
                 </div>{' '}
               </div>{' '}
               <div className="cv-px">
-                <span className="lb">
-                  {t('price')}
-                  <DemoTag on={demo} />
-                </span>
+                <span className="lb">{t('price')}</span>
                 <b>
                   {t('fromSpx', { sPx: v.sPx })} <small>{t('somoni')}</small>
+                  <DemoTag on={demo} />
                 </b>
                 <span>{t('smoSm2', { sMo: v.sMo, sM2: v.sM2 })}</span>
               </div>{' '}

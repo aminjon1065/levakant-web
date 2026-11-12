@@ -4,11 +4,13 @@
 import { Fragment } from 'react';
 import { useTranslations } from 'next-intl';
 import { useCatalogVals } from '@/lib/catalog';
+import { useModal } from '@/lib/useModal';
 
 /** Full-screen apartment plan (opened from the catalogue card). */
 export function PlanZoom() {
   const t = useTranslations('planx');
   const v = useCatalogVals();
+  useModal(v.pz, '.pzx');
   return (
     <>
       {' '}
@@ -48,7 +50,7 @@ export function PlanZoom() {
                 </button>{' '}
               </div>{' '}
             </div>{' '}
-            <div className="lbx-m">
+            <div className="lbx-m" tabIndex={0} role="region" aria-label={t('planRegion')}>
               {' '}
               <div
                 className="pv"

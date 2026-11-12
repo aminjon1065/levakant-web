@@ -16,6 +16,30 @@ const exploreState = (s: SiteState): Partial<StageState> => ({
   view: s.view,
   tod: s.tod,
 });
+/**
+ * Push state to the engine after the next paint: the clicked control repaints immediately and the
+ * heavier scene update (zones, clipping, shader variants) runs right after — keeps interactions responsive.
+ */
+function afterPaint(fn: () => void) {
+  let raf = 0;
+  let to = 0;
+  const run = () => {
+    if (raf || to) return;
+    raf = requestAnimationFrame(() => {
+      raf = 0;
+      to = window.setTimeout(() => {
+        to = 0;
+        fn();
+      }, 0);
+    });
+  };
+  run.cancel = () => {
+    cancelAnimationFrame(raf);
+    clearTimeout(to);
+  };
+  return run;
+}
+
 const sunState = (s: SiteState): Partial<StageState> => ({
   date: s.sunD,
   minutes: s.sunM >= 0 ? s.sunM : s.sunH * 60,
@@ -84,7 +108,12 @@ export function useStage(canvas: RefObject<HTMLCanvasElement | null>, mode: 'exp
           },
         });
         stage.set(exploreState(get()));
-        unsub = useSite.subscribe((s) => stage?.set(exploreState(s)));
+        const push = afterPaint(() => stage?.set(exploreState(get())));
+        const off = useSite.subscribe(push);
+        unsub = () => {
+          off();
+          push.cancel();
+        };
       } else {
         stage = createStage(cv, {
           ...base,
@@ -94,7 +123,12 @@ export function useStage(canvas: RefObject<HTMLCanvasElement | null>, mode: 'exp
           onTime: (m) => set({ sunM: m }),
         });
         stage.set(sunState(get()));
-        unsub = useSite.subscribe((s) => stage?.set(sunState(s)));
+        const push = afterPaint(() => stage?.set(sunState(get())));
+        const off = useSite.subscribe(push);
+        unsub = () => {
+          off();
+          push.cancel();
+        };
       }
     };
     const io = new IntersectionObserver(

@@ -1,10 +1,15 @@
-/** Number formatting per locale (ru/tg: "193 160" with a no-break space, en: "193,160"). */
+/**
+ * Number formatting per locale (ru/tg: "193 160" with a no-break space, en: "193,160").
+ * Browsers ship no Tajik number data (Chrome formats `tg` as English: "193,160") while Node does —
+ * that broke hydration on /tg. Tajik uses the Russian convention, so `tg` formats with `ru` everywhere.
+ */
+const intlLocale = (l: string) => (l === 'tg' ? 'ru' : l);
 const cache = new Map<string, Intl.NumberFormat>();
 const fmt = (locale: string, digits: number) => {
   const k = locale + digits;
   let f = cache.get(k);
   if (!f) {
-    f = new Intl.NumberFormat(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    f = new Intl.NumberFormat(intlLocale(locale), { minimumFractionDigits: digits, maximumFractionDigits: digits });
     cache.set(k, f);
   }
   return f;

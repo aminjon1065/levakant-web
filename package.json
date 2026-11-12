@@ -13,7 +13,9 @@
     "test:e2e": "playwright test",
     "i18n:fill": "node tools/i18n/fill.mjs",
     "data:build": "node tools/i18n/build-data.mjs",
-    "test:visual": "playwright test --project=visual"
+    "test:visual": "playwright test --project=visual",
+    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "images": "node tools/images.mjs"
   },
   "dependencies": {
     "next": "16.4.6",
@@ -27,6 +29,7 @@
     "zustand": "^5.1.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.65.0",
     "@types/node": "^20",
     "@types/pngjs": "^6.0.5",

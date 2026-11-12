@@ -35,7 +35,7 @@ const TR = { tg: makeTr('tj'), en: makeTr('en') };
 const MSG = { ru: {}, tg: {}, en: {} };
 const report = { missing: [], argFail: [] };
 const SAMPLES = ['193 160', '5 500', '35,12', '12', '7'];
-function slug(en, ru) {
+function slug(en) {
   const src = en && /[A-Za-z]/.test(en) ? en : '';
   let w = (src.match(/[A-Za-z0-9]+/g) || []).slice(0, 4).map((x, i) => (i ? x[0].toUpperCase() + x.slice(1).toLowerCase() : x.toLowerCase()));
   let k = w.join('') || 'text';

@@ -32,7 +32,7 @@ test.describe('3D', () => {
     const b = page.locator('#building');
     await b.scrollIntoViewIfNeeded();
     await expect(page.locator('#b3')).toHaveClass(/\bgl\b/, { timeout: 45_000 });
-    await b.getByRole('button', { name: /^7 этаж — показать план/ }).click();
+    await b.getByRole('button', { name: /7 этаж — показать план/ }).click();
     await expect(b.locator('.b3-i .n')).toHaveText('7 этаж');
     await b.locator('.b3-i .chips button').first().click();
     const enter = b.getByRole('button', { name: 'Войти в квартиру' });

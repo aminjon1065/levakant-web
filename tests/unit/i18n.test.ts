@@ -44,6 +44,7 @@ describe('translations', () => {
   });
   it('tg: strings identical to ru are real Tajik words (loanwords, names)', () => {
     const OK = new Set([
+      'Левакант', // city name
       'Галерея',
       'Ипотека',
       'Мансарда',

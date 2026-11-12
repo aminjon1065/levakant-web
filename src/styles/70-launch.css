@@ -59,3 +59,22 @@ a.tl-s{text-decoration:underline;text-underline-offset:3px}
 .h-wmk{-webkit-mask-image:url(/assets/r/hero_skymask.webp);mask-image:url(/assets/r/hero_skymask.webp)}
 @media (max-width:760px){.hero .h-wmk{-webkit-mask-image:url(/assets/r/hero_skymask.webp);mask-image:url(/assets/r/hero_skymask.webp)}}
 @media (min-width:761px) and (max-width:1100px){.hero .h-wmk{-webkit-mask-image:url(/assets/r/hero_skymask.webp);mask-image:url(/assets/r/hero_skymask.webp)}}
+
+/* wide plans on small screens: hint + ‹ › under the scrollable plan */
+.pan{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;font-size:12px;line-height:1.4;color:var(--ml)}
+.pan[hidden]{display:none}
+.pan span{flex:1;text-align:center}
+.pan .ib{flex:none;min-width:44px;min-height:44px}
+.pan .ib:disabled{opacity:.35}
+.dk .pan{color:var(--md)}
+/* sun controls: keep the hour buttons ≥44 px on 320 px screens */
+#lifestyle .ib{flex:none;min-width:44px}
+
+/* floor list captions: 9.5 px text needs ≥4.5:1 on the dark background */
+.fr button small{color:var(--md)}
+/* keyboard-scrollable regions show where focus is */
+.lbx-m:focus-visible,.ar-t:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.cm-pl:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+
+/* apartment plan viewer: definite column, so the plan box keeps its size before the (lazy) image arrives */
+.cv-p{grid-template-columns:100%}

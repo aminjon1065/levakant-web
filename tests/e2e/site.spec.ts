@@ -61,6 +61,23 @@ test.describe('page structure @all', () => {
   });
 });
 
+test.describe('runtime health @all', () => {
+  for (const l of ['ru', 'tg', 'en']) {
+    test(`/${l}: no console errors, no hydration mismatches`, async ({ page }) => {
+      const errors: string[] = [];
+      page.on('pageerror', (e) => errors.push(e.message));
+      page.on('console', (m) => {
+        if (m.type() === 'error') errors.push(m.text());
+      });
+      await page.goto(`/${l}`);
+      await page.waitForLoadState('networkidle');
+      await page.evaluate(() => document.getElementById('contact')!.scrollIntoView());
+      await page.waitForTimeout(500);
+      expect(errors).toEqual([]);
+    });
+  }
+});
+
 test.describe('prices and calculator', () => {
   test('type cards and default calculation', async ({ page }) => {
     await go(page);
@@ -105,8 +122,8 @@ test.describe('catalogue', () => {
     await expect(sec.locator('.cl .lc')).toHaveCount(18);
     await sec.getByRole('button', { name: /^4-комн\./ }).click();
     await expect(sec.getByRole('button', { name: /^до 50/ })).toBeDisabled();
-    await sec.getByRole('button', { name: /Сортировка по площади/ }).click();
-    await expect(sec.getByRole('button', { name: /Сортировка по площади: по убыванию/ })).toBeVisible();
+    await sec.getByRole('button', { name: /^Площадь ↑/ }).click();
+    await expect(sec.getByRole('button', { name: 'Площадь ↓ — сортировка по убыванию' })).toBeVisible();
   });
 
   test('card: favourite goes into the enquiry; ask price', async ({ page }) => {
@@ -155,7 +172,7 @@ test.describe('building and floor plan', () => {
   test('pick floor, explode, pick apartment, open its layout', async ({ page }) => {
     await go(page);
     const b = page.locator('#building');
-    await b.getByRole('button', { name: /^9 этаж — показать план/ }).click();
+    await b.getByRole('button', { name: /9 этаж — показать план/ }).click();
     await expect(page.locator('#floorplan .n, #building .b3-i .n').first()).toHaveText('9 этаж');
     await b.getByRole('button', { name: 'Разобрать по этажам' }).click();
     await expect(b.getByRole('button', { name: 'Собрать здание' })).toBeVisible();

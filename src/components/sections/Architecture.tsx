@@ -64,7 +64,7 @@ export function Architecture() {
               {t('viewFromIsmoiliSomoni')}
             </p>{' '}
           </div>{' '}
-          <div className="ar-t">
+          <div className="ar-t" tabIndex={0} role="region" aria-label={t('detailsRegion')}>
             {' '}
             <figure className="rv">
               <div className="af px">

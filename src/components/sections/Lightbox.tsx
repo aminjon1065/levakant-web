@@ -6,6 +6,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { useSiteData } from '@/components/SiteProvider';
 import { lbKey, stepLb } from '@/lib/gallery';
 import { up, useSite } from '@/lib/store';
+import { useModal } from '@/lib/useModal';
 
 /** Full-screen image viewer, positioned over the page like in the mockup. */
 export function Lightbox() {
@@ -14,6 +15,7 @@ export function Lightbox() {
   const s = useSite(useShallow((x) => ({ lb: x.lb, lbTop: x.lbTop, lbH: x.lbH, lbFlip: x.lbFlip })));
   const n = d.gal.length;
   const lg = s.lb >= 0 ? d.gal[s.lb] : d.gal[0];
+  useModal(s.lb >= 0, '.lbx:not(.pzx)');
   const v = {
     lbOpen: s.lb >= 0,
     lbA: s.lbFlip,

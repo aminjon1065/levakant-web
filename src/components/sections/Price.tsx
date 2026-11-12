@@ -7,6 +7,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { DemoTag } from '@/components/DemoTag';
 import { useSiteData } from '@/components/SiteProvider';
 import { waHref } from '@/lib/links';
+import { imgDims } from '@/lib/imgDims';
 import { preFill, withFav } from '@/lib/actions';
 import { area, nf } from '@/lib/format';
 import { allMin, calc, moOf, pxMin } from '@/lib/pricing';
@@ -173,7 +174,7 @@ export function Price() {
                   </svg>
                 </button>{' '}
                 <div className="pc-ap">
-                  <img src={v.pcImg} alt="" loading="lazy" decoding="async" />
+                  <img src={v.pcImg} {...imgDims(v.pcImg)} alt="" loading="lazy" decoding="async" />
                   <span>
                     <b>{v.pcTitle}</b>
                     <span>{t('pcareaPcside', { pcArea: v.pcArea, pcSide: v.pcSide })}</span>

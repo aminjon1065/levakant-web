@@ -8,6 +8,7 @@ import { Stage3DStatus } from '@/components/Stage3DStatus';
 import { useShallow } from 'zustand/react/shallow';
 import { useSiteData } from '@/components/SiteProvider';
 import { get, set, tf, up, useSite } from '@/lib/store';
+import { imgDims } from '@/lib/imgDims';
 import { DATES, sunPos } from '@/lib/sun';
 import type { SunDateKey } from '@/lib/types';
 import { useStage } from '@/engine/useStage';
@@ -211,7 +212,14 @@ export function Lifestyle() {
               {' '}
               <figure className={v.sunFCls}>
                 {' '}
-                <img className="sun-i" src={v.sunImg} alt={v.sunAlt} loading="lazy" decoding="async" />{' '}
+                <img
+                  className="sun-i"
+                  src={v.sunImg}
+                  {...imgDims(v.sunImg)}
+                  alt={v.sunAlt}
+                  loading="lazy"
+                  decoding="async"
+                />{' '}
                 <canvas className="sun-gl" ref={sunView} role="img" aria-label={v.sunAlt}></canvas>{' '}
                 <Stage3DStatus which="sunSt" />
                 <div className="sun-n" aria-hidden="true" style={{ transform: 'rotate(-24deg)' }}>
