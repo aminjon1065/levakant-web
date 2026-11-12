@@ -5,12 +5,14 @@ import { Fragment, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useExplorerVals } from '@/lib/explorer';
 import { useDragRotate } from '@/lib/drag';
+import { useStage } from '@/engine/useStage';
 
 export function Building() {
   const t = useTranslations('building');
   const v = useExplorerVals();
   const b3View = useRef<HTMLCanvasElement>(null);
   useDragRotate('b3');
+  useStage(b3View, 'explore');
   return (
     <>
       {' '}

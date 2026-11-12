@@ -8,6 +8,7 @@ import { useSiteData } from '@/components/SiteProvider';
 import { get, set, tf, up, useSite } from '@/lib/store';
 import { DATES, sunPos } from '@/lib/sun';
 import type { SunDateKey } from '@/lib/types';
+import { useStage } from '@/engine/useStage';
 
 const SUN_DATES: SunDateKey[] = ['summer', 'equinox', 'winter'];
 
@@ -82,6 +83,7 @@ export function Lifestyle() {
   const v = useSunVals();
   // Canvas for the live 3D sun scene (stage 4).
   const sunView = useRef<HTMLCanvasElement>(null);
+  useStage(sunView, 'sun');
   return (
     <>
       {' '}

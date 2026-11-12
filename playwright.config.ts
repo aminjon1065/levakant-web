@@ -11,7 +11,7 @@ const launchOptions = {
 };
 
 export default defineConfig({
-  testDir: 'tests/e2e',
+  testDir: 'tests',
   timeout: 60_000,
   expect: { timeout: 10_000 },
   fullyParallel: true,
@@ -19,9 +19,26 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   use: { baseURL, trace: 'retain-on-failure', reducedMotion: 'reduce' },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 }, launchOptions }, grepInvert: /@phone|@tablet/ },
-    { name: 'tablet', use: { ...devices['Desktop Chrome'], viewport: { width: 834, height: 1112 }, launchOptions }, grep: /@all|@tablet/ },
-    { name: 'phone', use: { ...devices['Pixel 7'], viewport: { width: 390, height: 844 }, launchOptions }, grep: /@all|@phone/ },
+    // pnpm test:visual — compares every section with the approved mockup (needs MOCKUP_URL)
+    ...(process.env.MOCKUP_URL ? [{ name: 'visual', testDir: 'tests/visual', use: { launchOptions } }] : []),
+    {
+      name: 'desktop',
+      testDir: 'tests/e2e',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 }, launchOptions },
+      grepInvert: /@phone|@tablet/,
+    },
+    {
+      name: 'tablet',
+      testDir: 'tests/e2e',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 834, height: 1112 }, launchOptions },
+      grep: /@all|@tablet/,
+    },
+    {
+      name: 'phone',
+      testDir: 'tests/e2e',
+      use: { ...devices['Pixel 7'], viewport: { width: 390, height: 844 }, launchOptions },
+      grep: /@all|@phone/,
+    },
   ],
   webServer: process.env.BASE_URL
     ? undefined
