@@ -220,7 +220,7 @@ export function Contact() {
                 {t('contact')}
               </div>{' '}
               <h2 className="h2">
-                {t('yourNewSpace')} <em>{t('startsHere')}</em>
+                {t('pickForYou')} <em>{t('forYourBudget')}</em>
               </h2>{' '}
             </div>{' '}
             <p className="lead mt">{t('leaveYourNumberWe')}</p>{' '}

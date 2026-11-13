@@ -5,7 +5,10 @@ import { DemoTag } from '@/components/DemoTag';
 import type { PublicConfig } from '@/lib/config';
 import { waHref } from '@/lib/links';
 
-/** Document status: a real PDF link when the owner published the file, otherwise an honest "pending". */
+/**
+ * Document status: a real PDF link when the owner published the file, otherwise a plain status text
+ * ("pending", or "on request" for a document that exists but is not published) styled apart from the link.
+ */
 function DocStatus({ url, label }: { url: string | null; label: string }) {
   return url ? (
     <a className="st" href={url} target="_blank" rel="noopener noreferrer">
@@ -76,11 +79,8 @@ export function Trust({ demo, cfg }: { demo: boolean; cfg: PublicConfig }) {
                     <b>{t('conceptDesign')}</b>
                     <span>{t('arkhitekturaIDizainLlc')}</span>
                   </div>
-                  {cfg.docs.sketch ? (
-                    <DocStatus url={cfg.docs.sketch} label="" />
-                  ) : (
-                    <span className="st ok">{t('ready')}</span>
-                  )}
+                  {/* the sketch design exists, but until its PDF is published it is shown to buyers on request */}
+                  <DocStatus url={cfg.docs.sketch} label={t('onRequest')} />
                 </li>{' '}
                 <li>
                   <div>
@@ -166,7 +166,7 @@ export function Trust({ demo, cfg }: { demo: boolean; cfg: PublicConfig }) {
             {' '}
             <div className="abr-h">
               {' '}
-              <h3 className="h3">{t('buyingFromRussiaOr')}</h3>{' '}
+              <h3 className="h3">{t('buyingFromAbroad')}</h3>{' '}
               <p className="mt">
                 {t('youCanChooseAnd')}
                 <DemoTag on={demo} />

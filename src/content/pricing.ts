@@ -1,11 +1,12 @@
 import type { Pricing } from '@/lib/types';
 
 /**
- * DEMO price model from the approved mockup — not real prices.
- * Will be replaced by the CMS (PricingSettings); while `isDemo` is true the footer says so.
+ * Price model: the approved mockup's figures, confirmed by the owner as the real offer (2026-11-13).
+ * Will be replaced by the CMS (PricingSettings). `isDemo: true` brings back the «ДЕМО» marks on prices, terms
+ * and dates, the demo footnote under the payment options and the footer disclaimer.
  */
 export const pricing: Pricing = {
-  isDemo: true,
+  isDemo: false,
   currency: 'TJS',
   pxm: { typ: 5500, f9: 5800, ph: 6200 },
   downMin: 30,

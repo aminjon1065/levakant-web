@@ -9,7 +9,7 @@ const d = data as unknown as SiteData;
 const n = (v: number) => nf('ru', v);
 
 // Figures as shown on the approved mockup (LEVAKANT_content.md).
-describe('demo price model', () => {
+describe('price model', () => {
   it('lowest price in the project', () => {
     expect(n(allMin(d, pricing))).toBe('193 160');
   });

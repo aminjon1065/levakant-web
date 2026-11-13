@@ -52,8 +52,8 @@ Nothing is invented. Everything the owner must confirm comes from environment va
 
 Public values are applied at **build** time (pages are prerendered) — rebuild after changing them.
 
-Prices, payment terms and dates are the mockup's examples (`src/content/pricing.ts`, `isDemo: true`): they carry the
-designers' «ДЕМО» mark and the footer disclaimer until real data replaces them.
+Prices, payment terms and dates (`src/content/pricing.ts`) are the mockup's figures, confirmed by the owner as the real
+offer, so `isDemo` is `false`. Setting it back to `true` restores the designers' «ДЕМО» marks and the demo disclaimers.
 
 ## Enquiries
 
@@ -98,7 +98,7 @@ Production should sit behind an HTTP/2 + brotli edge (Caddy) — measured LCP is
 | `src/lib/` | page logic (`store`, `pricing`, `catalog`, `explorer`, `sun`, …), `config` (owner data), lead schema/delivery |
 | `src/engine/` | 3D engine, lazy mount, capability check |
 | `src/styles/` | mockup CSS verbatim in layer order (`main → v4 … v8`) + `70-launch.css` (launch additions) |
-| `src/content/` | project data (`levakant-data.json` → `data.{ru,tg,en}.json`), demo pricing, image sizes |
+| `src/content/` | project data (`levakant-data.json` → `data.{ru,tg,en}.json`), pricing, image sizes |
 | `messages/` | UI strings (ICU); `tools/i18n/` — dictionary, `pnpm data:build`, `pnpm i18n:fill` |
 | `tools/images.mjs` | derived images (hero variants, social preview, size manifest) |
 

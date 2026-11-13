@@ -54,8 +54,8 @@ a.tl-s{text-decoration:underline;text-underline-offset:3px}
 @supports (content-visibility:auto){
 #about,#price,#building,#floorplan,#apartments,#trust,#lifestyle,#location,#gallery,#architecture,#commerce,#contact,.ft{content-visibility:auto;contain-intrinsic-size:auto 600px}
 /* measured heights (1440 / 390): before a section renders it already takes about its real space */
-#about{contain-intrinsic-size:auto 1339px}#price{contain-intrinsic-size:auto 1357px}#building{contain-intrinsic-size:auto 1228px}#floorplan{contain-intrinsic-size:auto 952px}#apartments{contain-intrinsic-size:auto 1695px}#trust{contain-intrinsic-size:auto 1456px}#lifestyle{contain-intrinsic-size:auto 2198px}#location{contain-intrinsic-size:auto 622px}#gallery{contain-intrinsic-size:auto 770px}#architecture{contain-intrinsic-size:auto 2608px}#commerce{contain-intrinsic-size:auto 1628px}#contact{contain-intrinsic-size:auto 928px}
-@media (max-width:760px){#about{contain-intrinsic-size:auto 1907px}#price{contain-intrinsic-size:auto 2287px}#building{contain-intrinsic-size:auto 1747px}#floorplan{contain-intrinsic-size:auto 1077px}#apartments{contain-intrinsic-size:auto 2908px}#trust{contain-intrinsic-size:auto 2752px}#lifestyle{contain-intrinsic-size:auto 2573px}#location{contain-intrinsic-size:auto 948px}#gallery{contain-intrinsic-size:auto 520px}#architecture{contain-intrinsic-size:auto 2187px}#commerce{contain-intrinsic-size:auto 1951px}#contact{contain-intrinsic-size:auto 1434px}}
+#about{contain-intrinsic-size:auto 1383px}#price{contain-intrinsic-size:auto 1425px}#building{contain-intrinsic-size:auto 1228px}#floorplan{contain-intrinsic-size:auto 952px}#apartments{contain-intrinsic-size:auto 1735px}#trust{contain-intrinsic-size:auto 1479px}#lifestyle{contain-intrinsic-size:auto 2198px}#location{contain-intrinsic-size:auto 622px}#gallery{contain-intrinsic-size:auto 770px}#architecture{contain-intrinsic-size:auto 2608px}#commerce{contain-intrinsic-size:auto 1628px}#contact{contain-intrinsic-size:auto 928px}
+@media (max-width:760px){#about{contain-intrinsic-size:auto 2062px}#price{contain-intrinsic-size:auto 2343px}#building{contain-intrinsic-size:auto 1753px}#floorplan{contain-intrinsic-size:auto 1077px}#apartments{contain-intrinsic-size:auto 2967px}#trust{contain-intrinsic-size:auto 2797px}#lifestyle{contain-intrinsic-size:auto 2573px}#location{contain-intrinsic-size:auto 948px}#gallery{contain-intrinsic-size:auto 520px}#architecture{contain-intrinsic-size:auto 2187px}#commerce{contain-intrinsic-size:auto 2000px}#contact{contain-intrinsic-size:auto 1448px}}
 }
 
 /* sky mask behind the wordmark: same image as lossless WebP (8 KB instead of 25 KB) */
@@ -94,3 +94,6 @@ a.tl-s{text-decoration:underline;text-underline-offset:3px}
 /* keyboard-rotatable models show focus */
 #q3:focus-visible,#b3:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
 .sun-gl:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+/* full-width CTAs on phones: a label longer than the button wraps (as the mockup does for the abroad button)
+   instead of being cut off by .btn's nowrap + overflow */
+@media (max-width:760px){.pc>.btn,.fm-f .btn,.cv-f .btn{white-space:normal;text-align:center;padding:12px 16px;line-height:1.4}}

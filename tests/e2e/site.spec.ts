@@ -96,10 +96,10 @@ test.describe('prices and calculator', () => {
     for (const b of await page.locator('#price .chips').nth(1).locator('button').all()) await expect(b).toBeDisabled();
   });
 
-  test('"Получить расчёт" (no WhatsApp configured) attaches the calculation to the form', async ({ page }) => {
+  test('"Получить график платежей" (no WhatsApp configured) attaches the calculation to the form', async ({ page }) => {
     await go(page);
     const cta = page.locator('#price .pc a.btn');
-    await expect(cta).toHaveText(/^Получить расчёт\s*$/);
+    await expect(cta).toHaveText(/^Получить график платежей\s*$/);
     await expect(cta).toHaveAttribute('href', '#contact');
     await cta.click();
     await expect(page.locator('#contact .pk-i')).toHaveCount(2);
@@ -256,7 +256,7 @@ test.describe('contact form @all', () => {
     const f = page.locator('#contact');
     await expect(f.locator('#fm-st')).toContainText('Отправка заявок с сайта пока не подключена');
     await f.locator('#f-name').fill('Анвар');
-    await expect(f.getByRole('button', { name: /Оставить заявку/ })).toBeDisabled();
+    await expect(f.getByRole('button', { name: /Получить подборку и цены/ })).toBeDisabled();
     await expect(f.locator('#f-name')).toHaveValue('Анвар');
     await expect(f.getByRole('status')).toHaveCount(0);
     expect(posted).toBe(false);
@@ -271,13 +271,13 @@ test.describe('contact form @all', () => {
     });
     await go(page);
     const f = page.locator('#contact');
-    await f.getByRole('button', { name: /Оставить заявку/ }).click();
+    await f.getByRole('button', { name: /Получить подборку и цены/ }).click();
     await expect(f.locator('#e-name')).toHaveText('Укажите имя — как к вам обращаться');
     await expect(f.locator('#e-tel')).toHaveText('Укажите номер телефона полностью');
     await f.locator('#f-name').fill('Анвар');
     await f.locator('#f-tel').fill('+992 90 123 45 67');
     await f.locator('label[for=m2]').click();
-    await f.getByRole('button', { name: /Оставить заявку/ }).click();
+    await f.getByRole('button', { name: /Получить подборку и цены/ }).click();
     await expect(f.getByRole('status')).toContainText('Анвар', { timeout: 10_000 });
     await expect(f.getByRole('status')).toContainText('WhatsApp');
     expect(body).toMatchObject({
@@ -299,7 +299,7 @@ test.describe('contact form @all', () => {
     const f = page.locator('#contact');
     await f.locator('#f-name').fill('Анвар');
     await f.locator('#f-tel').fill('+992 90 123 45 67');
-    await f.getByRole('button', { name: /Оставить заявку/ }).click();
+    await f.getByRole('button', { name: /Получить подборку и цены/ }).click();
     await expect(f.getByRole('alert')).toContainText('Не удалось отправить заявку');
     await expect(f.locator('#f-name')).toHaveValue('Анвар');
     await expect(f.getByRole('status')).toHaveCount(0);
@@ -307,7 +307,7 @@ test.describe('contact form @all', () => {
 });
 
 test.describe('launch content rules @all', () => {
-  test('no placeholder contacts, links or documents; demo figures are marked', async ({ page }) => {
+  test('no placeholder contacts, links or documents; confirmed figures carry no demo marks', async ({ page }) => {
     await go(page);
     const html = await page.content();
     expect(html).not.toContain('000-00-00');
@@ -315,15 +315,18 @@ test.describe('launch content rules @all', () => {
     await expect(page.locator('#location .mk-l')).toHaveCount(0); // map links only when configured
     await expect(page.locator('.waf, .mcta .wa')).toHaveCount(0); // WhatsApp only with a verified number
     await expect(page.locator('#trust .dc .st')).toHaveText([
-      'Есть',
+      'По запросу',
       'Ожидается',
       'Ожидается',
       'Ожидается',
       'Ожидается',
     ]);
+    // without a published PDF no status is styled like the gold PDF link
+    await expect(page.locator('#trust .dc .st.ok, #trust .dc a.st')).toHaveCount(0);
     await expect(page.locator('#trust .tr-q')).toHaveCount(0); // draft address of the developer
-    expect(await page.locator('.dm').count()).toBeGreaterThan(10);
-    await expect(page.locator('#price .po-x')).toContainText('демонстрационные');
+    await expect(page.locator('.dm')).toHaveCount(0); // prices, terms and dates are confirmed (pricing.isDemo = false)
+    await expect(page.locator('#price .po-x')).toContainText('Цена и график платежей фиксируются в договоре');
+    await expect(page.locator('footer')).not.toContainText('примеры для макета');
   });
 
   test('every in-page link has a target', async ({ page }) => {

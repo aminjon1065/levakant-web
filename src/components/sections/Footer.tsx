@@ -39,9 +39,6 @@ export function Footer({ demo, cfg }: { demo: boolean; cfg: PublicConfig }) {
                   <span className="vh">{' — ' + t('toTop')}</span>
                 </span>{' '}
               </a>{' '}
-              <p className="sf" style={{ fontSize: '26px', lineHeight: '1.15', marginTop: '20px', maxWidth: '12em' }}>
-                {t('architectureOfBetterLiving')}
-              </p>{' '}
             </div>{' '}
             <div>
               {' '}

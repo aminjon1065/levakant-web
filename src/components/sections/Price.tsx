@@ -143,7 +143,10 @@ export function Price() {
                 {t('prices')} <em>{t('andInstalments')}</em>
               </h2>{' '}
             </div>{' '}
-            <p className="lead mt">{t('apartmentsFromPxfromSomoni', { pxFrom: v.pxFrom })}</p>{' '}
+            <p className="lead mt">
+              {t('apartmentsFromPxfromSomoni', { pxFrom: v.pxFrom })}
+              <DemoTag on={demo} />
+            </p>{' '}
           </div>{' '}
           <div className="pr-t rv" role="group" aria-label={t('apartmentType')}>
             {' '}

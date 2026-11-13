@@ -41,16 +41,19 @@ export function Hero({ pxFrom, demo }: { pxFrom: string; demo: boolean }) {
               </div>{' '}
               <h1 className="h1">
                 <span>
-                  <i>{t('comfortableLiving')}</i>
+                  <i>{t('newLevelOfLiving')}</i>
                 </span>
                 <span>
-                  <i>{t('newArchitecture')}</i>
+                  <i>{t('centralLevakant')}</i>
                 </span>
                 <span>
-                  <i>{t('yourSpace')}</i>
+                  <i>{t('homeForYourFamily')}</i>
                 </span>
               </h1>{' '}
-              <p className="h-sub">{t('apartmentsOf35To')}</p>{' '}
+              <p className="h-sub">
+                {t('apartmentsOf35To')}
+                <DemoTag on={demo} />
+              </p>{' '}
               <div className="h-cta">
                 {' '}
                 <a className="btn b-gold" href="#apartments">
@@ -69,10 +72,6 @@ export function Hero({ pxFrom, demo }: { pxFrom: string; demo: boolean }) {
             </div>{' '}
             <p className="h-note">{t('architecturalRenderingConceptDes')}</p>{' '}
           </div>{' '}
-          <p className="h-end" lang="en" aria-hidden="true">
-            {'Architecture of'} <em>{'Better Living'}</em>
-            <small lang="ru">{t('levakantIsmoiliSomoniSt')}</small>
-          </p>{' '}
           <div className="h-led">
             {' '}
             <div className="wrap">

@@ -148,7 +148,7 @@ export function Apartments() {
             </div>{' '}
           </div>{' '}
           <p className="av">
-            <b>{t('layoutsNotAvailability')}</b>
+            <b>{t('freeFloorsPick')}</b>
             <span>{t('theCatalogueShowsThe')}</span>
           </p>{' '}
           <div className="cat">

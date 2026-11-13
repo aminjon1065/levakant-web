@@ -14,7 +14,7 @@ test.describe('form state @all', () => {
     await f.locator('#f-name').fill('Анвар');
     await f.locator('#f-tel').fill('+992 90 123 45 67');
     await f.locator('#f-msg').fill('Вопрос');
-    await f.getByRole('button', { name: /Оставить заявку/ }).click();
+    await f.getByRole('button', { name: /Получить подборку и цены/ }).click();
     await expect(f.getByRole('status')).toContainText('Анвар');
     await f.getByRole('button', { name: /Новая заявка/ }).click();
     await expect(f.locator('#f-name')).toHaveValue('');

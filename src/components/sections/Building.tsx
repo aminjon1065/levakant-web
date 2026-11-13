@@ -36,7 +36,7 @@ export function Building() {
                 {t('exploreTheBuilding')} <em>{t('in3d')}</em>
               </h2>{' '}
             </div>{' '}
-            <p className="lead mt">{t('theArchicadModelOf')}</p>{' '}
+            <p className="lead mt">{t('exploreLead')}</p>{' '}
           </div>{' '}
           <ol className="stp rv" aria-label={t('pathBuildingFloorApartment')}>
             {' '}
